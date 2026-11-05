@@ -1,5 +1,5 @@
 
-📜 **[Lihat Catatan Perubahan lengkap di CHANGELOG.md](./changelog.md)**
+📜 **[For the changelog, see the updated logs right in:](./changelog.md)**
 
 <div align="center">
 
