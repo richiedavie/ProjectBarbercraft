@@ -632,28 +632,25 @@ export default function Home() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-[#E6DFD3]">
               <div className="pt-2 md:pt-0">
                 <span className="text-3xl md:text-4xl text-[#1B1B1B] font-extrabold block">
-                  150+
+                  -
                 </span>
                 <span className="text-sm text-[#5C5C5C] mt-1 block">Capster Terlatih Aktif</span>
               </div>
               <div className="pt-2 md:pt-0">
                 <span className="text-3xl md:text-4xl text-[#1B1B1B] font-extrabold block">
-                  85+
+                  -
                 </span>
                 <span className="text-sm text-[#5C5C5C] mt-1 block">Mitra Barbershop</span>
               </div>
               <div className="pt-4 md:pt-0">
                 <span className="text-3xl md:text-4xl text-[#1B1B1B] font-extrabold block">
-                  98%
+                  -
                 </span>
                 <span className="text-sm text-[#5C5C5C] mt-1 block">Tingkat Retensi Klien</span>
               </div>
               <div className="pt-4 md:pt-0">
                 <div className="inline-flex items-center justify-center gap-1">
-                  <span className="text-3xl md:text-4xl text-[#1B1B1B] font-extrabold">4,9</span>
-                  <span className="material-symbols-outlined text-[#F26B21] text-2xl fill">
-                    star
-                  </span>
+                  <span className="text-3xl md:text-4xl text-[#1B1B1B] font-extrabold">-</span>
                 </div>
                 <span className="text-sm text-[#5C5C5C] mt-1 block">Rating Kepuasan Barbershop</span>
               </div>
