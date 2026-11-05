@@ -1,3 +1,6 @@
+
+📜 **[Lihat Catatan Perubahan lengkap di CHANGELOG.md](./changelog.md)**
+
 <div align="center">
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=F26B21&height=10&section=header" alt="" width="100%" />
