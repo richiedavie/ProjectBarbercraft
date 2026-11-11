@@ -20,9 +20,6 @@ export default function Home() {
               <span className="text-[18px] sm:text-[20px] font-bold text-[#1B1B1B] tracking-tight leading-none">
                 BarberCraft
               </span>
-              <span className="text-[9px] sm:text-[10px] font-semibold text-[#8C8479] tracking-wider uppercase mt-0.5">
-                Capster Outsourcing Agency
-              </span>
             </div>
           </Link>
 
@@ -56,12 +53,12 @@ export default function Home() {
 
           {/* Trailing Action & Mobile Menu Toggle */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <a
+            <Link
               className="hidden md:inline-block text-xs sm:text-sm font-bold text-[#1B1B1B] hover:text-[#F26B21] transition-colors py-2"
-              href="#gabung-tim"
+              href="/login"
             >
               Gabung Jadi Capster
-            </a>
+            </Link>
             <Link
               className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white text-xs px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-[10px] transition-all duration-150 shadow-none font-bold inline-flex items-center gap-1.5 shrink-0"
               href="/login"
@@ -116,13 +113,13 @@ export default function Home() {
               Keunggulan
             </a>
             <div className="pt-2 border-t border-[#E6DFD3] flex flex-col gap-2">
-              <a
+              <Link
                 className="text-sm font-bold text-[#1B1B1B] hover:text-[#F26B21] py-1.5 transition-colors"
-                href="#gabung-tim"
+                href="/login"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Gabung Jadi Capster
-              </a>
+              </Link>
             </div>
           </div>
         )}
@@ -131,7 +128,7 @@ export default function Home() {
       {/* MAIN CANVAS */}
       <main className="w-full flex-grow">
         {/* HERO SECTION */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-8 sm:pt-10 pb-12 sm:pb-16">
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-8 sm:pt-10 pb-12 sm:pb-16 animate-fade-in-up">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Column (60%) */}
             <div className="lg:col-span-7 flex flex-col justify-center">
@@ -146,14 +143,14 @@ export default function Home() {
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3.5 mt-6 sm:mt-8">
                 <a
-                  className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white font-bold py-3.5 px-6 sm:px-8 rounded-[10px] text-sm sm:text-base text-center transition-all duration-150 inline-flex justify-center items-center gap-2"
+                  className="bg-[#F26B21] hover:bg-[#D85812] hover:shadow-lg hover:shadow-[#F26B21]/20 active:scale-95 text-white font-bold py-3.5 px-6 sm:px-8 rounded-[10px] text-sm sm:text-base text-center transition-all duration-200 inline-flex justify-center items-center gap-2"
                   href="#katalog-capster"
                 >
                   <span className="material-symbols-outlined text-lg sm:text-xl">person_search</span>
                   <span>Pilih Capster Siap Kerja</span>
                 </a>
                 <a
-                  className="bg-white hover:bg-[#F7F2E8] active:scale-95 text-[#1B1B1B] border border-[#1B1B1B] font-bold py-3.5 px-6 sm:px-8 rounded-[10px] text-sm sm:text-base text-center transition-all duration-150 inline-flex justify-center items-center gap-2"
+                  className="bg-white hover:bg-[#F7F2E8] hover:border-[#F26B21] hover:shadow-sm active:scale-95 text-[#1B1B1B] border border-[#1B1B1B] font-bold py-3.5 px-6 sm:px-8 rounded-[10px] text-sm sm:text-base text-center transition-all duration-200 inline-flex justify-center items-center gap-2"
                   href="#rekrut-sekarang"
                 >
                   <span className="material-symbols-outlined text-lg sm:text-xl">support_agent</span>
@@ -163,11 +160,11 @@ export default function Home() {
 
               {/* Trust Badges */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mt-8 pt-6 border-t border-[#E6DFD3]">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 transition-transform duration-200 hover:translate-x-1">
                   <span className="material-symbols-outlined text-[#236B47]">verified_user</span>
                   <span className="text-xs sm:text-sm font-semibold text-[#1B1B1B]">100% Lulus Uji Standar BarberCraft</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 transition-transform duration-200 hover:translate-x-1">
                   <span className="material-symbols-outlined text-[#236B47]">published_with_changes</span>
                   <span className="text-xs sm:text-sm font-semibold text-[#1B1B1B]">Garansi Ganti Capster 24 Jam</span>
                 </div>
@@ -176,14 +173,14 @@ export default function Home() {
 
             {/* Right Column (40%) */}
             <div className="lg:col-span-5">
-              <div className="relative w-full rounded-[12px] border border-[#E6DFD3] overflow-hidden bg-white shadow-sm h-[280px] sm:h-[350px] lg:h-[400px]">
+              <div className="relative w-full rounded-[12px] border border-[#E6DFD3] overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 h-[280px] sm:h-[350px] lg:h-[400px] group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   alt="BarberCraft Professional Outsource Capster"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPBzSAwy-9wa38AX3Fu1J3aSfIDHifz-VOeus1YulFd2xfGfqgZYLAJk2b_f5dpUdVRb3qNKSTxVQfKDmW6RoyOjg0MsLacWQ8FbDV5NLZsO3IrzRwtzT_S9DYs6TjbbCgV_1BgYVv0-BEO3GR_ma6zIAiGerqp46WRe3dATRl2ieoLs8NSqi4I79cdWkLAGjj25ySfD3TW-A1LYWEFdnx7CNQ4LaIskt2U-Oj6WSw"
                 />
-                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-white/95 backdrop-blur-sm border border-[#E6DFD3] p-3 rounded-lg shadow-sm flex items-center justify-between">
+                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-white/95 backdrop-blur-sm border border-[#E6DFD3] p-3 rounded-lg shadow-sm flex items-center justify-between transition-all duration-300 group-hover:border-[#F26B21]/40">
                   <div>
                     <span className="text-xs font-bold text-[#1B1B1B] block">Siap Penempatan Instan</span>
                     <span className="text-[10px] sm:text-[11px] text-[#5C5C5C]">Wilayah Jabodetabek & sekitarnya</span>
@@ -211,11 +208,11 @@ export default function Home() {
           {/* 3-Column Card Grid (Profil Capster yang di-outsource) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Card 1 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md">
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#FFF1E6] border border-[#F26B21]/20 flex items-center justify-center text-[#F26B21] font-extrabold text-base shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-[#FFF1E6] border border-[#F26B21]/20 flex items-center justify-center text-[#F26B21] font-extrabold text-base shrink-0 transition-transform duration-300 hover:scale-105">
                       AP
                     </div>
                     <div>
@@ -244,13 +241,13 @@ export default function Home() {
 
                 <div className="space-y-1.5 mb-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       Skin Fade
                     </span>
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       French Crop
                     </span>
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       Hot Towel
                     </span>
                   </div>
@@ -261,7 +258,7 @@ export default function Home() {
               </div>
               <Link
                 href="/login"
-                className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white py-3 rounded-[10px] w-full font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer"
+                className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white py-3 rounded-[10px] w-full font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow"
               >
                 <span>Request Penempatan</span>
                 <span className="material-symbols-outlined text-base">send</span>
@@ -269,11 +266,11 @@ export default function Home() {
             </div>
 
             {/* Card 2 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md">
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#FFF1E6] border border-[#F26B21]/20 flex items-center justify-center text-[#F26B21] font-extrabold text-base shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-[#FFF1E6] border border-[#F26B21]/20 flex items-center justify-center text-[#F26B21] font-extrabold text-base shrink-0 transition-transform duration-300 hover:scale-105">
                       BS
                     </div>
                     <div>
@@ -302,13 +299,13 @@ export default function Home() {
 
                 <div className="space-y-1.5 mb-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       Taper Fade
                     </span>
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       Pompadour
                     </span>
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       Coloring
                     </span>
                   </div>
@@ -319,7 +316,7 @@ export default function Home() {
               </div>
               <Link
                 href="/login"
-                className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white py-3 rounded-[10px] w-full font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer"
+                className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white py-3 rounded-[10px] w-full font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow"
               >
                 <span>Request Penempatan</span>
                 <span className="material-symbols-outlined text-base">send</span>
@@ -327,11 +324,11 @@ export default function Home() {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all md:col-span-2 lg:col-span-1">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md md:col-span-2 lg:col-span-1">
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#FFF1E6] border border-[#F26B21]/20 flex items-center justify-center text-[#F26B21] font-extrabold text-base shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-[#FFF1E6] border border-[#F26B21]/20 flex items-center justify-center text-[#F26B21] font-extrabold text-base shrink-0 transition-transform duration-300 hover:scale-105">
                       FR
                     </div>
                     <div>
@@ -360,13 +357,13 @@ export default function Home() {
 
                 <div className="space-y-1.5 mb-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       Classic Cuts
                     </span>
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       Beard Sculpting
                     </span>
-                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md">
+                    <span className="bg-[#FFF9F0] border border-[#E6DFD3] text-[#1B1B1B] text-xs font-semibold px-2.5 py-1 rounded-md transition-colors hover:border-[#F26B21]/40">
                       Head Massage
                     </span>
                   </div>
@@ -377,7 +374,7 @@ export default function Home() {
               </div>
               <Link
                 href="/login"
-                className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white py-3 rounded-[10px] w-full font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer"
+                className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white py-3 rounded-[10px] w-full font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow"
               >
                 <span>Request Penempatan</span>
                 <span className="material-symbols-outlined text-base">send</span>
@@ -398,19 +395,19 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Skema 1 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/50 transition-colors">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-md group">
               <div>
-                <div className="w-12 h-12 rounded-[10px] bg-[#FFF9F0] border border-[#E6DFD3] flex items-center justify-center text-[#F26B21] mb-5">
+                <div className="w-12 h-12 rounded-[10px] bg-[#FFF9F0] border border-[#E6DFD3] flex items-center justify-center text-[#F26B21] mb-5 transition-transform duration-300 group-hover:scale-110">
                   <span className="material-symbols-outlined text-2xl">schedule</span>
                 </div>
-                <h3 className="text-xl font-bold text-[#1B1B1B] mb-2">Shift Harian &amp; Pengganti</h3>
+                <h3 className="text-xl font-bold text-[#1B1B1B] mb-2 group-hover:text-[#F26B21] transition-colors">Shift Harian &amp; Pengganti</h3>
                 <p className="text-sm text-[#5C5C5C] leading-relaxed">
                   Solusi cepat saat capster Anda mendadak sakit atau libur. Penempatan 1-7 hari tanpa komitmen panjang.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-[#E6DFD3]">
                 <a
-                  className="text-[#F26B21] font-semibold text-sm inline-flex items-center gap-1 hover:underline"
+                  className="text-[#F26B21] font-semibold text-sm inline-flex items-center gap-1 hover:underline transition-transform duration-200 hover:translate-x-1"
                   href="#rekrut-sekarang"
                 >
                   <span>Minta capster harian</span>
@@ -420,19 +417,19 @@ export default function Home() {
             </div>
 
             {/* Skema 2 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/50 transition-colors">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-md group">
               <div>
-                <div className="w-12 h-12 rounded-[10px] bg-[#FFF9F0] border border-[#E6DFD3] flex items-center justify-center text-[#F26B21] mb-5">
+                <div className="w-12 h-12 rounded-[10px] bg-[#FFF9F0] border border-[#E6DFD3] flex items-center justify-center text-[#F26B21] mb-5 transition-transform duration-300 group-hover:scale-110">
                   <span className="material-symbols-outlined text-2xl">contract</span>
                 </div>
-                <h3 className="text-xl font-bold text-[#1B1B1B] mb-2">Kontrak Dedicated (3-12 Bulan)</h3>
+                <h3 className="text-xl font-bold text-[#1B1B1B] mb-2 group-hover:text-[#F26B21] transition-colors">Kontrak Dedicated (3-12 Bulan)</h3>
                 <p className="text-sm text-[#5C5C5C] leading-relaxed">
                   Penempatan capster tetap untuk gerai Anda. Urusan payroll, BPJS, evaluasi kinerja, dan pengganti saat cuti kami yang tanggung.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-[#E6DFD3]">
                 <a
-                  className="text-[#F26B21] font-semibold text-sm inline-flex items-center gap-1 hover:underline"
+                  className="text-[#F26B21] font-semibold text-sm inline-flex items-center gap-1 hover:underline transition-transform duration-200 hover:translate-x-1"
                   href="#rekrut-sekarang"
                 >
                   <span>Konsultasi kontrak</span>
@@ -442,19 +439,19 @@ export default function Home() {
             </div>
 
             {/* Skema 3 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/50 transition-colors">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 shadow-sm flex flex-col justify-between hover:border-[#F26B21]/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-md group">
               <div>
-                <div className="w-12 h-12 rounded-[10px] bg-[#FFF9F0] border border-[#E6DFD3] flex items-center justify-center text-[#F26B21] mb-5">
+                <div className="w-12 h-12 rounded-[10px] bg-[#FFF9F0] border border-[#E6DFD3] flex items-center justify-center text-[#F26B21] mb-5 transition-transform duration-300 group-hover:scale-110">
                   <span className="material-symbols-outlined text-2xl">storefront</span>
                 </div>
-                <h3 className="text-xl font-bold text-[#1B1B1B] mb-2">Paket Cabang Baru &amp; Event</h3>
+                <h3 className="text-xl font-bold text-[#1B1B1B] mb-2 group-hover:text-[#F26B21] transition-colors">Paket Cabang Baru &amp; Event</h3>
                 <p className="text-sm text-[#5C5C5C] leading-relaxed">
                   Buka cabang baru tanpa hambatan SDM. Kami sediakan 2-5 capster sekaligus lengkap dengan pelatihan SOP brand Anda.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-[#E6DFD3]">
                 <a
-                  className="text-[#F26B21] font-semibold text-sm inline-flex items-center gap-1 hover:underline"
+                  className="text-[#F26B21] font-semibold text-sm inline-flex items-center gap-1 hover:underline transition-transform duration-200 hover:translate-x-1"
                   href="#rekrut-sekarang"
                 >
                   <span>Pelajari paket cabang</span>
@@ -475,8 +472,8 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Step 1 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm relative">
-              <div className="w-8 h-8 rounded-full bg-[#1B1B1B] text-white flex items-center justify-center font-bold text-sm mb-4">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm relative transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-[#F26B21]/50 group">
+              <div className="w-8 h-8 rounded-full bg-[#1B1B1B] text-white flex items-center justify-center font-bold text-sm mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#F26B21]">
                 1
               </div>
               <h4 className="text-base font-bold text-[#1B1B1B] mb-1.5">
@@ -488,8 +485,8 @@ export default function Home() {
             </div>
 
             {/* Step 2 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm relative">
-              <div className="w-8 h-8 rounded-full bg-[#1B1B1B] text-white flex items-center justify-center font-bold text-sm mb-4">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm relative transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-[#F26B21]/50 group">
+              <div className="w-8 h-8 rounded-full bg-[#1B1B1B] text-white flex items-center justify-center font-bold text-sm mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#F26B21]">
                 2
               </div>
               <h4 className="text-base font-bold text-[#1B1B1B] mb-1.5">Pencocokan &amp; Briefing SOP</h4>
@@ -499,8 +496,8 @@ export default function Home() {
             </div>
 
             {/* Step 3 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm relative">
-              <div className="w-8 h-8 rounded-full bg-[#1B1B1B] text-white flex items-center justify-center font-bold text-sm mb-4">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm relative transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-[#F26B21]/50 group">
+              <div className="w-8 h-8 rounded-full bg-[#1B1B1B] text-white flex items-center justify-center font-bold text-sm mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#F26B21]">
                 3
               </div>
               <h4 className="text-base font-bold text-[#1B1B1B] mb-1.5">Penempatan &amp; Tugas</h4>
@@ -510,8 +507,8 @@ export default function Home() {
             </div>
 
             {/* Step 4 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm relative">
-              <div className="w-8 h-8 rounded-full bg-[#F26B21] text-white flex items-center justify-center font-bold text-sm mb-4">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 shadow-sm relative transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-[#F26B21]/50 group">
+              <div className="w-8 h-8 rounded-full bg-[#F26B21] text-white flex items-center justify-center font-bold text-sm mb-4 transition-transform duration-300 group-hover:scale-110">
                 4
               </div>
               <h4 className="text-base font-bold text-[#1B1B1B] mb-1.5">
@@ -536,8 +533,8 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {/* Feature 1 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-6 shadow-sm">
-              <div className="w-10 h-10 rounded-lg bg-[#E7EFEA] text-[#0F5C3A] flex items-center justify-center mb-4">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-[#236B47]/40 group">
+              <div className="w-10 h-10 rounded-lg bg-[#E7EFEA] text-[#0F5C3A] flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
                 <span className="material-symbols-outlined text-2xl">verified</span>
               </div>
               <h3 className="text-base font-bold text-[#1B1B1B] mb-2">Teruji &amp; Tersertifikasi</h3>
@@ -547,8 +544,8 @@ export default function Home() {
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-6 shadow-sm">
-              <div className="w-10 h-10 rounded-lg bg-[#FFF9F0] text-[#F26B21] flex items-center justify-center mb-4">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-[#F26B21]/50 group">
+              <div className="w-10 h-10 rounded-lg bg-[#FFF9F0] text-[#F26B21] flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
                 <span className="material-symbols-outlined text-2xl">published_with_changes</span>
               </div>
               <h3 className="text-base font-bold text-[#1B1B1B] mb-2">Garansi Pengganti Cepat</h3>
@@ -558,8 +555,8 @@ export default function Home() {
             </div>
 
             {/* Feature 3 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-6 shadow-sm">
-              <div className="w-10 h-10 rounded-lg bg-[#FFF9F0] text-[#1B1B1B] flex items-center justify-center mb-4">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-[#1B1B1B]/40 group">
+              <div className="w-10 h-10 rounded-lg bg-[#FFF9F0] text-[#1B1B1B] flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
                 <span className="material-symbols-outlined text-2xl">receipt_long</span>
               </div>
               <h3 className="text-base font-bold text-[#1B1B1B] mb-2">Bebas Beban Administrasi</h3>
@@ -569,8 +566,8 @@ export default function Home() {
             </div>
 
             {/* Feature 4 */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-6 shadow-sm">
-              <div className="w-10 h-10 rounded-lg bg-[#E7EFEA] text-[#0F5C3A] flex items-center justify-center mb-4">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-[#236B47]/40 group">
+              <div className="w-10 h-10 rounded-lg bg-[#E7EFEA] text-[#0F5C3A] flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
                 <span className="material-symbols-outlined text-2xl">trending_up</span>
               </div>
               <h3 className="text-base font-bold text-[#1B1B1B] mb-2">Skalabilitas Bisnis</h3>
@@ -585,10 +582,12 @@ export default function Home() {
         <section className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Kolom Barbershop */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 sm:p-8 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-[#F26B21]/50 group">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="material-symbols-outlined text-3xl text-[#F26B21]">store</span>
+                  <div className="w-10 h-10 rounded-lg bg-[#FFF1E6] flex items-center justify-center text-[#F26B21] transition-transform duration-300 group-hover:scale-110">
+                    <span className="material-symbols-outlined text-2xl">store</span>
+                  </div>
                   <h3 className="text-2xl sm:text-[28px] font-bold text-[#1B1B1B]">Untuk Pemilik Barbershop</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-[#5C5C5C] mb-6">
@@ -621,19 +620,21 @@ export default function Home() {
                   </li>
                 </ul>
               </div>
-              <a
-                className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white font-bold py-3.5 px-6 rounded-[10px] text-center transition-all duration-150 inline-block w-full text-sm sm:text-base"
-                href="#rekrut-sekarang"
+              <Link
+                className="bg-[#F26B21] hover:bg-[#D85812] active:scale-95 text-white font-bold py-3.5 px-6 rounded-[10px] text-center transition-all duration-200 inline-block w-full text-sm sm:text-base shadow-sm hover:shadow-md hover:shadow-[#F26B21]/20"
+                href="/login"
               >
                 Minta Penempatan Capster
-              </a>
+              </Link>
             </div>
 
             {/* Kolom Capster Ingin Bergabung */}
-            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 sm:p-8 shadow-sm flex flex-col justify-between" id="gabung-tim">
+            <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-6 sm:p-8 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-[#1B1B1B]/40 group" id="gabung-tim">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="material-symbols-outlined text-3xl text-[#1B1B1B]">badge</span>
+                  <div className="w-10 h-10 rounded-lg bg-[#F5F2EC] flex items-center justify-center text-[#1B1B1B] transition-transform duration-300 group-hover:scale-110">
+                    <span className="material-symbols-outlined text-2xl">badge</span>
+                  </div>
                   <h3 className="text-2xl sm:text-[28px] font-bold text-[#1B1B1B]">Untuk Capster (Karier)</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-[#5C5C5C] mb-6">
@@ -666,12 +667,12 @@ export default function Home() {
                   </li>
                 </ul>
               </div>
-              <a
-                className="bg-white hover:bg-[#F7F2E8] active:scale-95 text-[#1B1B1B] border border-[#1B1B1B] font-bold py-3.5 px-6 rounded-[10px] text-center transition-all duration-150 inline-block w-full text-sm sm:text-base"
-                href="#rekrut-sekarang"
+              <Link
+                className="bg-white hover:bg-[#F7F2E8] hover:border-[#F26B21] active:scale-95 text-[#1B1B1B] border border-[#1B1B1B] font-bold py-3.5 px-6 rounded-[10px] text-center transition-all duration-200 inline-block w-full text-sm sm:text-base shadow-sm hover:shadow"
+                href="/login"
               >
                 Lamar Jadi Capster BarberCraft
-              </a>
+              </Link>
             </div>
           </div>
         </section>

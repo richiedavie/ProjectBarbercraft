@@ -2,16 +2,30 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { setDevUserCookie } from "@/app/actions/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Berhasil masuk! Mengalihkan ke dashboard...");
-    window.location.href = "/";
+    setIsSubmitting(true);
+    const role = email.toLowerCase().includes("capster") ? "CAPSTER" : "OWNER";
+    await setDevUserCookie(role);
+    router.push(role === "CAPSTER" ? "/capster" : "/owner");
+    router.refresh();
+  };
+
+  const handleDevLogin = async (role: "OWNER" | "CAPSTER") => {
+    setIsSubmitting(true);
+    await setDevUserCookie(role);
+    router.push(role === "CAPSTER" ? "/capster" : "/owner");
+    router.refresh();
   };
 
   return (
@@ -36,7 +50,7 @@ export default function LoginPage() {
         </header>
 
         {/* Vertically Centered Form Container */}
-        <main className="my-auto mx-auto w-full max-w-[420px] py-4 lg:py-6">
+        <main className="my-auto mx-auto w-full max-w-[420px] py-4 lg:py-6 animate-fade-in-up">
           {/* Header Text */}
           <div className="mb-5 sm:mb-6">
             <h1 className="text-2xl sm:text-[30px] lg:text-[32px] leading-tight font-bold text-[#1B1B1B] tracking-tight mb-1.5 sm:mb-2">
@@ -47,8 +61,31 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {/* Quick Dev Switcher */}
+          <div className="mb-4 p-3 bg-[#FDE8D8] border border-[#F26B21]/30 rounded-[10px] space-y-2">
+            <div className="text-xs font-bold text-[#1B1B1B]">Coba Masuk Dashboard (Dev Mode):</div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => handleDevLogin("OWNER")}
+                disabled={isSubmitting}
+                className="flex-1 bg-[#F26B21] hover:bg-[#D85812] text-white text-xs font-bold py-2 rounded-[8px] transition-all cursor-pointer text-center"
+              >
+                Masuk sbg Owner
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDevLogin("CAPSTER")}
+                disabled={isSubmitting}
+                className="flex-1 bg-[#1B1B1B] hover:bg-black text-white text-xs font-bold py-2 rounded-[8px] transition-all cursor-pointer text-center"
+              >
+                Masuk sbg Capster
+              </button>
+            </div>
+          </div>
+
           {/* Form Card Container */}
-          <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-7 shadow-[0_1px_2px_rgba(27,27,27,0.06)] space-y-4">
+          <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-7 shadow-[0_1px_2px_rgba(27,27,27,0.06)] space-y-4 transition-all duration-300 hover:shadow-md">
             <form className="space-y-4" onSubmit={handleSubmit}>
               {/* Email Field */}
               <div className="space-y-1.5">
@@ -110,58 +147,24 @@ export default function LoginPage() {
 
               {/* Primary Action Button */}
               <button
-                className="w-full min-h-[46px] sm:min-h-[48px] bg-[#F26B21] hover:bg-[#d95a16] active:scale-[0.98] text-white font-bold text-sm rounded-[10px] flex items-center justify-center transition-all duration-150 cursor-pointer shadow-none"
+                className="w-full min-h-[46px] sm:min-h-[48px] bg-[#F26B21] hover:bg-[#d95a16] active:scale-[0.98] text-white font-bold text-sm rounded-[10px] flex items-center justify-center transition-all duration-150 cursor-pointer shadow-none disabled:opacity-50"
                 type="submit"
+                disabled={isSubmitting}
               >
-                Masuk
+                {isSubmitting ? "Memproses..." : "Masuk"}
               </button>
             </form>
-
-            {/* Divider */}
-            <div className="relative flex py-1.5 items-center">
-              <div className="flex-grow border-t border-[#E6DFD3]"></div>
-              <span className="flex-shrink mx-3 text-[11px] font-bold text-[#5C5C5C] bg-white px-2">
-                atau
-              </span>
-              <div className="flex-grow border-t border-[#E6DFD3]"></div>
-            </div>
-
-            {/* Google SSO Button */}
-            <button
-              className="w-full min-h-[46px] sm:min-h-[48px] bg-white border border-[#E6DFD3] text-[#1B1B1B] font-bold text-sm rounded-[10px] flex items-center justify-center gap-3 hover:bg-[#FFF9F0] active:scale-[0.98] transition-all duration-150 cursor-pointer"
-              type="button"
-            >
-              <svg aria-hidden="true" className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
-                <path
-                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"
-                  fill="#4285F4"
-                />
-                <path
-                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24Z"
-                  fill="#34A853"
-                />
-                <path
-                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15Z"
-                  fill="#FBBC05"
-                />
-                <path
-                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"
-                  fill="#EA4335"
-                />
-              </svg>
-              <span>Masuk dengan Google</span>
-            </button>
           </div>
 
           {/* Registration Link */}
-          <p className="text-xs sm:text-sm font-normal text-[#1B1B1B] text-center mt-4 sm:mt-5">
+          <p className="text-xs sm:text-sm font-normal text-[#1B1B1B] text-center mt-5 sm:mt-6">
             Belum punya akun?{" "}
-            <a
+            <Link
               className="text-[#F26B21] font-bold text-xs sm:text-sm hover:underline cursor-pointer ml-1"
-              href="#"
+              href="/register"
             >
               Daftar
-            </a>
+            </Link>
           </p>
 
           {/* Legal Disclaimer */}
@@ -187,15 +190,15 @@ export default function LoginPage() {
       </div>
 
       {/* Right Column: Full-Height Barber Photo & Micro Floating Card */}
-      <div className="relative w-full lg:w-1/2 h-[340px] sm:h-[420px] lg:h-screen overflow-hidden bg-[#F0E4D3] shrink-0">
+      <div className="relative w-full lg:w-1/2 h-[340px] sm:h-[420px] lg:h-screen overflow-hidden bg-[#F0E4D3] shrink-0 group">
         <img
           alt="BarberCraft Artisanal Barbershop"
-          className="w-full h-full object-cover object-center absolute inset-0 select-none pointer-events-none"
+          className="w-full h-full object-cover object-center absolute inset-0 select-none pointer-events-none transition-transform duration-700 ease-out group-hover:scale-105"
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt2rdMnq6rbPdYp7fAdaXn9PRfCmVd1Y311pEvR5qtB3BqIuJabWjDI_yCv6OCVOiJHP6Wmx95BhTY6dnF7LZ3K2aw2_Y1OwA4OzXNLgt92H51TKa0E7STFbZIWG5nQEsiWeTAk1Phda51Bu831JROSNmXb21VBG9OfG1jfmq1xpQAm2Lm_w84gWb-Iiq-qza8eQHaikk2TUUlEFfWFeKP7waqE-g2qwUGhQ3mDiix"
         />
         {/* Floating Anchor Card in Bottom-Left Corner */}
-        <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8 sm:right-auto max-w-sm z-10">
-          <div className="bg-white/95 backdrop-blur-xs border border-[#E6DFD3] rounded-[12px] p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8 sm:right-auto max-w-sm z-10 animate-fade-in delay-200">
+          <div className="bg-white/95 backdrop-blur-xs border border-[#E6DFD3] rounded-[12px] p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-transform duration-300 hover:scale-[1.02]">
             <p className="font-bold text-[#1B1B1B] text-sm sm:text-base leading-snug">
               Shift berikutnya mulai di sini.
             </p>

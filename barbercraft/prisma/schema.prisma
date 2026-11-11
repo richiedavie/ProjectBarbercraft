@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------
+// ENUMS
+// --------------------------------------
+enum Role {
+  UNASSIGNED
+  OWNER
+  CAPSTER
+  ADMIN
+}
+
+enum ShiftStatus {
+  OPEN
+  BOOKED
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum PayType {
+  FLAT
+  PERCENTAGE
+}
+
+enum TransactionType {
+  EARNING
+  WITHDRAWAL
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+// --------------------------------------
+// MODELS / TABEL
+// --------------------------------------
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  password       String?         // null jika daftar via Google OAuth
+  name           String
+  avatarUrl      String?
+  phone          String?
+  role           Role            @default(UNASSIGNED)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  barberProfile  BarberProfile?
+  capsterProfile CapsterProfile?
+  givenReviews   Review[]        @relation("ReviewerUser")
+  transactions   Transaction[]
+}
+
+model BarberProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  shopName    String
+  address     String
+  city        String
+  latitude    Float?
+  longitude   Float?
+  whatsapp    String
+  chairCount  Int      @default(1)
+
+  // Baru: Jam operasional & SOP
+  openTime    String?
+  closeTime   String?
+  openDays    Int[]    @default([1, 2, 3, 4, 5, 6, 7])
+  sop         String?
+
+  shifts      Shift[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CapsterProfile {
+  id           String        @id @default(uuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  experience   String?       // Lama pengalaman
+  skills       String[]      // ["Skin Fade", "Classic Cut", "Beard Trim"]
+  dailyRate    Int?          // Tarif harian
+  whatsapp     String
+  isAvailable  Boolean       @default(true)
+  portfolio    String[]      // Array URL foto potong rambut
+  certificates String[]      @default([]) // Array sertifikat
+
+  bookings     Booking[]
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Shift {
+  id                 String        @id @default(uuid())
+  shopId             String
+  shop               BarberProfile @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  
+  title              String
+  date               DateTime
+  startTime          String
+  endTime            String
+  payType            PayType       @default(FLAT)
+  payAmount          Int
+  status             ShiftStatus   @default(OPEN)
+
+  // Baru: spesifikasi kebutuhan shift
+  requiredSkills     String[]      @default([])
+  minExperienceYears Int?
+  capsterCount       Int           @default(1)
+  notes              String?
+
+  bookings           Booking[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model Booking {
+  id          String         @id @default(uuid())
+  shiftId     String
+  shift       Shift          @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  
+  capsterId   String
+  capster     CapsterProfile @relation(fields: [capsterId], references: [id], onDelete: Cascade)
+  
+  status      BookingStatus  @default(PENDING)
+  notes       String?
+
+  reviews     Review[]
+  transaction Transaction?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  reviewerId  String
+  reviewer    User     @relation("ReviewerUser", fields: [reviewerId], references: [id])
+  
+  rating      Int
+  comment     String?
+  createdAt   DateTime @default(now())
+}
+
+model Transaction {
+  id            String            @id @default(uuid())
+  bookingId     String?           @unique
+  booking       Booking?          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  capsterId     String?
+  capster       CapsterProfile?   @relation(fields: [capsterId], references: [id], onDelete: Cascade)
+  
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  
+  type          TransactionType   @default(EARNING)
+  amount        Int
+  status        TransactionStatus @default(COMPLETED)
+  bankName      String?
+  accountNumber String?
+
+  createdAt     DateTime          @default(now())
+}
+
