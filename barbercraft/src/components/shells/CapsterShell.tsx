@@ -12,14 +12,24 @@ import {
   Scissors,
 } from "lucide-react";
 import { NavItem, BottomNavItem } from "@/components/shared/NavItem";
+import { AccountMenu } from "@/components/shared/AccountMenu";
 import { copy } from "@/lib/copy";
 
 interface CapsterShellProps {
   children: React.ReactNode;
   userInitials: string;
+  userName?: string;
+  userEmail?: string;
+  avatarUrl?: string | null;
 }
 
-export function CapsterShell({ children, userInitials }: CapsterShellProps) {
+export function CapsterShell({
+  children,
+  userInitials,
+  userName = "Arya Pratama",
+  userEmail = "capster@barbercraft.com",
+  avatarUrl = null,
+}: CapsterShellProps) {
   const pathname = usePathname();
 
   const navItems = [
@@ -107,9 +117,13 @@ export function CapsterShell({ children, userInitials }: CapsterShellProps) {
             <span className="text-xs font-bold px-2 py-1 border border-[#E6DFD3] rounded-[6px] text-[#5C5C5C]">
               {copy.roles.capster}
             </span>
-            <div className="w-9 h-9 rounded-full bg-[#FDE8D8] text-[#F26B21] border border-[#F26B21]/30 flex items-center justify-center text-xs font-bold select-none">
-              {userInitials}
-            </div>
+            <AccountMenu
+              name={userName}
+              email={userEmail}
+              role="CAPSTER"
+              initials={userInitials}
+              avatarUrl={avatarUrl}
+            />
           </div>
         </header>
 

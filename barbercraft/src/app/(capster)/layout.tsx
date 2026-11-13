@@ -24,6 +24,15 @@ export default async function CapsterLayout({
 
   const userInitials = getInitials(user.name);
 
-  return <CapsterShell userInitials={userInitials}>{children}</CapsterShell>;
+  return (
+    <CapsterShell
+      userInitials={userInitials}
+      userName={user.name}
+      userEmail={user.email}
+      avatarUrl={user.avatarUrl}
+    >
+      {children}
+    </CapsterShell>
+  );
 }
 

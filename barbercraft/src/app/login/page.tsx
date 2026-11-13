@@ -16,7 +16,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsSubmitting(true);
     const role = email.toLowerCase().includes("capster") ? "CAPSTER" : "OWNER";
-    await setDevUserCookie(role);
+    await setDevUserCookie(role, email);
     router.push(role === "CAPSTER" ? "/capster" : "/owner");
     router.refresh();
   };

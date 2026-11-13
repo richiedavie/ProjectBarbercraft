@@ -11,7 +11,7 @@
 <br />
 
 ![Status](https://img.shields.io/badge/status-beta-F26B21?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-0.0.1b-1B1B1B?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-0.0.3b-1B1B1B?style=for-the-badge)
 ![Language](https://img.shields.io/badge/UI-Bahasa%20Indonesia-0F5C3A?style=for-the-badge)
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
@@ -83,12 +83,12 @@ Typeface: **Plus Jakarta Sans**.
 
 | Part | State |
 | :-- | :-- |
-| Home (landing) page | Available, beta |
-| Login page | UI only, dummy form (no real authentication) |
-| Everything else | Not started |
-
-> [!IMPORTANT]
-> Everything shown on the pages is placeholder content for design purposes: the capster profiles, rates, statistics, and guarantees are examples, not real data or commitments. Nothing is connected to a backend yet.
+| Home (landing) page | Available, beta (with smooth entrance animations) |
+| Onboarding & Role Selection | Available (`/register/role`, `/register/owner`, `/register/barber`) |
+| Login page | Connected with dynamic session cookie & PostgreSQL sync |
+| Owner Dashboard | Available (`/owner`, `/owner/shift`, `/owner/shift/baru`, `/owner/barbershop`) |
+| Capster Dashboard | Profile & Navigation Shell available (`/capster/profil`) |
+| Backend & Database | Prisma ORM & PostgreSQL integrated |
 
 ---
 
@@ -97,6 +97,80 @@ Typeface: **Plus Jakarta Sans**.
 All notable changes to BarberCraft are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). While BarberCraft is in beta, versions use a `b` suffix (for example `0.0.1b`).
+
+---
+
+## [0.0.3b] - 2026-11-13
+
+### Phase 2 & 2A: Owner Shift Management, Schema Hardening & Unified Profiles
+
+This release completes Phase 2 and Phase 2A, integrating the PostgreSQL database via Prisma into Next.js, implementing owner shift operations, schema hardening, and unified profile management for both owner and capster roles.
+
+### Added
+
+- **Owner Dashboard Shift Management (`/owner/shift`)**:
+  - Interactive tabs (*Aktif*, *Terisi*, *Selesai*) with real-time shift count badges.
+  - Accurate calculation of "Terisi" based on accepted bookings vs. `capsterCount`.
+  - Shift cards displaying rate per shift, date, operational hours, required skills, and notes.
+  - **Shift Deletion**: Delete shift button with confirmation dialog and secure Server Action.
+- **Create Daily Shift Form (`/owner/shift/baru`)**:
+  - Structured 4-section form: Time, Requirements (stepper capster count, minimum experience, skill chips), Pay (`MoneyInput` IDR), and Notes.
+  - Strict server-side input validation using **Zod** schema.
+  - Server Action `createShiftAction` with automatic owner profile provisioning.
+- **Top Bar Account Menu (`AccountMenu`)**:
+  - Keyboard-accessible avatar button with Escape and outside-click dismissal.
+  - Displays user name, email, role, divider, quick profile link, and red logout action.
+  - `logoutAction` Server Action clearing session cookies and redirecting to `/login`.
+- **Barbershop Profile Management (`/owner/barbershop`)**:
+  - Form with 3 cards: Shop Profile (read-only email, normalized +62 WhatsApp, separated address and city, UI-only photo upload), Operations (chair stepper, open/close time, operational day picker), and Capster SOP rules.
+  - `updateBarberProfileAction` with inline success and error alerts.
+- **Capster Profile Management (`/capster/profil`)**:
+  - Profile header showing dynamic aggregated rating from `Review` and completed shifts from `Booking`.
+  - Form editing contact, experience years stepper, skill chips, daily rate, and UI-only gallery/certificates.
+  - `updateCapsterProfileAction` with inline feedback.
+- **Prisma Schema Hardening**:
+  - Centralized single schema in `barbercraft/prisma/schema.prisma`.
+  - Added unique constraint `@@unique([shiftId, capsterId])` on `Booking` and `@@unique([bookingId, reviewerId])` on `Review`.
+  - Added indexes on `Shift(status, date)` and `Booking(status)`.
+  - Restructured `Transaction` to be owned directly by `userId` with default status `PENDING`.
+  - Normalized `experienceYears Int?` on `CapsterProfile`.
+
+### Changed
+
+- Updated login flow to accept dynamic email input, saving real user records in PostgreSQL.
+- Removed conflicting experimental `cacheComponents` and `partialPrefetching` flags in `next.config.ts`.
+- Fixed minimum experience dropdown closing prematurely by using mapped string values.
+
+---
+
+## [0.0.2b] - 2026-11-11
+
+### Phase 1: Design System, Tokens, Components & Route Shells
+
+This release lays down the complete design system and architectural foundation for role-based dashboards.
+
+### Added
+
+- **BarberCraft Design Tokens**: Palette variables defined in `globals.css` (`bc-bg`, `bc-card`, `bc-ink`, `bc-muted`, `bc-primary`, `bc-primary-tint`, `bc-success`, `bc-danger`, `bc-border`).
+- **Smooth Animations**: `@keyframes fadeInUp`, `@keyframes fadeIn`, and scale transitions added to landing and auth pages.
+- **Shared Components**:
+  - `NavItem` and `BottomNavItem`
+  - `StatCard`
+  - `EmptyState`
+  - `TabRow`
+  - `SkillChip` and `FilterChip`
+  - `Stepper`, `MoneyInput`, and `FormSection`
+- **Application Shells & Route Guards**:
+  - `OwnerShell`: 240px desktop sidebar, mobile bottom navigation, 72px top bar with `OWNER` tag.
+  - `CapsterShell`: Mobile-first 390px layout, desktop sidebar support, 64px top bar with `CAPSTER` tag.
+  - Layout-level route guards redirecting unauthorized roles and unassigned users.
+- **UI Copy & Formatting Helpers**:
+  - Centralized copy repository in `lib/copy.ts`.
+  - Indonesian currency (`Intl.NumberFormat`) and date helpers in `lib/format.ts`.
+- **Role Selection & Onboarding Screens**:
+  - Role selection step 1 of 2 (`/register/role`).
+  - Owner onboarding step 2 of 2 (`/register/owner`).
+  - Capster onboarding step 2 of 2 (`/register/barber`).
 
 ---
 

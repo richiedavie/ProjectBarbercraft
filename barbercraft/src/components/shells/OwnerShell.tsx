@@ -12,6 +12,7 @@ import {
   Scissors,
 } from "lucide-react";
 import { NavItem, BottomNavItem } from "@/components/shared/NavItem";
+import { AccountMenu } from "@/components/shared/AccountMenu";
 import { copy } from "@/lib/copy";
 
 interface OwnerShellProps {
@@ -19,6 +20,9 @@ interface OwnerShellProps {
   shopName: string;
   city: string;
   userInitials: string;
+  userName?: string;
+  userEmail?: string;
+  avatarUrl?: string | null;
 }
 
 export function OwnerShell({
@@ -26,6 +30,9 @@ export function OwnerShell({
   shopName,
   city,
   userInitials,
+  userName = "Roots Barbershop Owner",
+  userEmail = "owner@rootsbarbershop.com",
+  avatarUrl = null,
 }: OwnerShellProps) {
   const pathname = usePathname();
 
@@ -119,16 +126,20 @@ export function OwnerShell({
             </span>
           </div>
 
-          {/* User Initial Avatar */}
+          {/* User Initial Avatar / Account Menu */}
           <div className="flex items-center gap-3">
             <div className="md:hidden text-right">
               <span className="text-xs text-[#5C5C5C] block">
                 {shopName || "Barbershop"}
               </span>
             </div>
-            <div className="w-9 h-9 rounded-full bg-[#FDE8D8] text-[#F26B21] border border-[#F26B21]/30 flex items-center justify-center text-xs font-bold select-none">
-              {userInitials}
-            </div>
+            <AccountMenu
+              name={userName}
+              email={userEmail}
+              role="OWNER"
+              initials={userInitials}
+              avatarUrl={avatarUrl}
+            />
           </div>
         </header>
 

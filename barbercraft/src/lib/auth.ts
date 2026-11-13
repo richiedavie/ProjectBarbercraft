@@ -22,8 +22,21 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    // 1. Coba cari berdasarkan ID
+    let user = await prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        barberProfile: true,
+        capsterProfile: true,
+      },
+    });
+
+    if (user) return user;
+
+    // 2. Jika ID berupa string cookie lama (misal "mock-owner"), cari berdasarkan email dev
+    const defaultEmail = userRole === "CAPSTER" ? "capster@barbercraft.com" : "owner@rootsbarbershop.com";
+    user = await prisma.user.findUnique({
+      where: { email: defaultEmail },
       include: {
         barberProfile: true,
         capsterProfile: true,

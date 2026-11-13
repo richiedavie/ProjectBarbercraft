@@ -24,10 +24,18 @@ export default async function OwnerLayout({
 
   const shopName = user.barberProfile?.shopName ?? "Barbershop";
   const city = user.barberProfile?.city ?? "Indonesia";
-  const userInitials = getInitials(user.name);
+  // Avatar shows initials of shopName for owner, or User.name as fallback
+  const userInitials = getInitials(user.barberProfile?.shopName || user.name);
 
   return (
-    <OwnerShell shopName={shopName} city={city} userInitials={userInitials}>
+    <OwnerShell
+      shopName={shopName}
+      city={city}
+      userInitials={userInitials}
+      userName={user.name}
+      userEmail={user.email}
+      avatarUrl={user.avatarUrl}
+    >
       {children}
     </OwnerShell>
   );

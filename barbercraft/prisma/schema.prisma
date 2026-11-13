@@ -81,7 +81,7 @@ model BarberProfile {
   whatsapp    String
   chairCount  Int      @default(1)
 
-  // Baru: Jam operasional & SOP
+  // Jam operasional & SOP
   openTime    String?
   closeTime   String?
   openDays    Int[]    @default([1, 2, 3, 4, 5, 6, 7])
@@ -93,22 +93,21 @@ model BarberProfile {
 }
 
 model CapsterProfile {
-  id           String        @id @default(uuid())
-  userId       String        @unique
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String        @id @default(uuid())
+  userId          String        @unique
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  experience   String?       // Lama pengalaman
-  skills       String[]      // ["Skin Fade", "Classic Cut", "Beard Trim"]
-  dailyRate    Int?          // Tarif harian
-  whatsapp     String
-  isAvailable  Boolean       @default(true)
-  portfolio    String[]      // Array URL foto potong rambut
-  certificates String[]      @default([]) // Array sertifikat
+  experienceYears Int?          // Pengalaman dalam hitungan tahun
+  skills          String[]      // ["Skin Fade", "Classic Cut", "Beard Trim"]
+  dailyRate       Int?          // Tarif harian
+  whatsapp        String
+  isAvailable     Boolean       @default(true)
+  portfolio       String[]      // Array URL foto potong rambut
+  certificates    String[]      @default([]) // Array sertifikat
 
-  bookings     Booking[]
-  transactions Transaction[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  bookings        Booking[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model Shift {
@@ -124,7 +123,7 @@ model Shift {
   payAmount          Int
   status             ShiftStatus   @default(OPEN)
 
-  // Baru: spesifikasi kebutuhan shift
+  // Spesifikasi kebutuhan shift
   requiredSkills     String[]      @default([])
   minExperienceYears Int?
   capsterCount       Int           @default(1)
@@ -133,6 +132,8 @@ model Shift {
   bookings           Booking[]
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
+
+  @@index([status, date])
 }
 
 model Booking {
@@ -150,6 +151,9 @@ model Booking {
   transaction Transaction?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+
+  @@unique([shiftId, capsterId])
+  @@index([status])
 }
 
 model Review {
@@ -163,25 +167,23 @@ model Review {
   rating      Int
   comment     String?
   createdAt   DateTime @default(now())
+
+  @@unique([bookingId, reviewerId])
 }
 
 model Transaction {
   id            String            @id @default(uuid())
   bookingId     String?           @unique
-  booking       Booking?          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-
-  capsterId     String?
-  capster       CapsterProfile?   @relation(fields: [capsterId], references: [id], onDelete: Cascade)
+  booking       Booking?          @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   
   userId        String
-  user          User              @relation(fields: [userId], references: [id])
+  user          User              @relation(fields: [userId], references: [id], onDelete: Restrict)
   
   type          TransactionType   @default(EARNING)
   amount        Int
-  status        TransactionStatus @default(COMPLETED)
+  status        TransactionStatus @default(PENDING)
   bankName      String?
   accountNumber String?
 
   createdAt     DateTime          @default(now())
 }
-
