@@ -1,201 +1,168 @@
+import { auth } from "@/lib/auth/better-auth";
 import { prisma } from "@/lib/prisma";
-import type { Prisma } from "@prisma/client";
-
-export type PrismaTransaction = Prisma.TransactionClient;
+import { DomainError } from "../errors";
 
 export interface RegisterCapsterParams {
   email: string;
   name: string;
+  password?: string;
   whatsapp: string;
   experienceYears?: number;
   skills: string[];
   expectedRate?: number;
 }
 
-export async function registerCapster(
-  params: RegisterCapsterParams,
-  client: PrismaTransaction = prisma
-) {
-  const { email, name, whatsapp, experienceYears, skills, expectedRate } = params;
+export async function registerCapster(params: RegisterCapsterParams) {
+  const { email, name, password, whatsapp, experienceYears, skills, expectedRate } = params;
 
-  let user = await client.user.findUnique({
-    where: { email },
-    include: { capsterProfile: true },
-  });
-
-  if (!user) {
-    user = await client.user.create({
-      data: {
-        email,
-        name,
-        role: "CAPSTER",
-        phone: whatsapp,
-        capsterProfile: {
-          create: {
-            experienceYears: experienceYears ?? 1,
-            skills: skills.length > 0 ? skills : ["Classic Cut"],
-            dailyRate: expectedRate ?? 200000,
-            whatsapp,
-          },
-        },
-      },
-      include: { capsterProfile: true },
-    });
-  } else {
-    user = await client.user.update({
-      where: { id: user.id },
-      data: {
-        role: "CAPSTER",
-        phone: whatsapp,
-        capsterProfile: user.capsterProfile
-          ? {
-              update: {
-                experienceYears: experienceYears ?? user.capsterProfile.experienceYears,
-                skills: skills.length > 0 ? skills : user.capsterProfile.skills,
-                whatsapp,
-              },
-            }
-          : {
-              create: {
-                experienceYears: experienceYears ?? 1,
-                skills: skills.length > 0 ? skills : ["Classic Cut"],
-                dailyRate: expectedRate ?? 200000,
-                whatsapp,
-              },
-            },
-      },
-      include: { capsterProfile: true },
-    });
+  if (!password || password.length < 8 || password.length > 128) {
+    throw new DomainError("VALIDATION_ERROR", "Kata sandi harus terdiri dari 8 hingga 128 karakter.");
   }
 
-  return user;
+  // 1. Buat akun kredensial menggunakan Better Auth API
+  let authUser;
+  try {
+    const res = await auth.api.signUpEmail({
+      body: {
+        email,
+        name,
+        password,
+      },
+    });
+    authUser = res.user;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.toLowerCase().includes("already") || msg.toLowerCase().includes("exist")) {
+      throw new DomainError("ALREADY_PROCESSED", "Email ini sudah terdaftar di BarberCraft.");
+    }
+    throw new DomainError("UNKNOWN", "Gagal mendaftarkan akun. Silakan coba lagi.");
+  }
+
+  // 2. Dalam satu transaksi prisma, set role ke CAPSTER dan buat CapsterProfile
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Pastikan peran user hanya boleh berubah satu kali dari UNASSIGNED ke CAPSTER
+      const current = await tx.user.findUnique({
+        where: { id: authUser.id },
+        select: { role: true },
+      });
+
+      if (!current || (current.role !== "UNASSIGNED" && current.role !== "CAPSTER")) {
+        throw new DomainError("FORBIDDEN", "Peran akun tidak dapat diubah.");
+      }
+
+      await tx.user.update({
+        where: { id: authUser.id },
+        data: {
+          role: "CAPSTER",
+          phone: whatsapp,
+        },
+      });
+
+      await tx.capsterProfile.create({
+        data: {
+          userId: authUser.id,
+          whatsapp,
+          experienceYears: experienceYears ?? 1,
+          skills: skills.length > 0 ? skills : ["Classic Cut"],
+          dailyRate: expectedRate ?? 200000,
+        },
+      });
+    });
+
+    return authUser;
+  } catch (profileError) {
+    // Pencegahan Akun Yatim: jika transaksi pembuatan profil gagal, hapus akun autentikasi
+    try {
+      await prisma.user.delete({ where: { id: authUser.id } });
+    } catch (cleanupErr) {
+      console.error("Gagal membersihkan orphan account:", cleanupErr);
+    }
+    throw profileError instanceof DomainError
+      ? profileError
+      : new DomainError("UNKNOWN", "Gagal menyelesaikan profil capster.");
+  }
 }
 
 export interface RegisterOwnerParams {
   email: string;
   shopName: string;
+  password?: string;
   address: string;
   city: string;
   whatsapp: string;
   chairCount: number;
 }
 
-export async function registerOwner(
-  params: RegisterOwnerParams,
-  client: PrismaTransaction = prisma
-) {
-  const { email, shopName, address, city, whatsapp, chairCount } = params;
-  const name = shopName;
+export async function registerOwner(params: RegisterOwnerParams) {
+  const { email, shopName, password, address, city, whatsapp, chairCount } = params;
 
-  let user = await client.user.findUnique({
-    where: { email },
-    include: { barberProfile: true },
-  });
+  if (!password || password.length < 8 || password.length > 128) {
+    throw new DomainError("VALIDATION_ERROR", "Kata sandi harus terdiri dari 8 hingga 128 karakter.");
+  }
 
-  if (!user) {
-    user = await client.user.create({
-      data: {
+  // 1. Buat akun kredensial menggunakan Better Auth API
+  let authUser;
+  try {
+    const res = await auth.api.signUpEmail({
+      body: {
         email,
-        name,
-        role: "OWNER",
-        phone: whatsapp,
-        barberProfile: {
-          create: {
-            shopName,
-            address,
-            city,
-            whatsapp,
-            chairCount: chairCount || 2,
-          },
+        name: shopName,
+        password,
+      },
+    });
+    authUser = res.user;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.toLowerCase().includes("already") || msg.toLowerCase().includes("exist")) {
+      throw new DomainError("ALREADY_PROCESSED", "Email ini sudah terdaftar di BarberCraft.");
+    }
+    throw new DomainError("UNKNOWN", "Gagal mendaftarkan akun. Silakan coba lagi.");
+  }
+
+  // 2. Dalam satu transaksi prisma, set role ke OWNER dan buat BarberProfile
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Pastikan peran user hanya boleh berubah satu kali dari UNASSIGNED ke OWNER
+      const current = await tx.user.findUnique({
+        where: { id: authUser.id },
+        select: { role: true },
+      });
+
+      if (!current || (current.role !== "UNASSIGNED" && current.role !== "OWNER")) {
+        throw new DomainError("FORBIDDEN", "Peran akun tidak dapat diubah.");
+      }
+
+      await tx.user.update({
+        where: { id: authUser.id },
+        data: {
+          role: "OWNER",
+          phone: whatsapp,
         },
-      },
-      include: { barberProfile: true },
+      });
+
+      await tx.barberProfile.create({
+        data: {
+          userId: authUser.id,
+          shopName,
+          address,
+          city,
+          whatsapp,
+          chairCount: chairCount || 2,
+        },
+      });
     });
-  } else {
-    user = await client.user.update({
-      where: { id: user.id },
-      data: {
-        role: "OWNER",
-        phone: whatsapp,
-        barberProfile: user.barberProfile
-          ? {
-              update: {
-                shopName,
-                address,
-                city,
-                whatsapp,
-                chairCount: chairCount || 2,
-              },
-            }
-          : {
-              create: {
-                shopName,
-                address,
-                city,
-                whatsapp,
-                chairCount: chairCount || 2,
-              },
-            },
-      },
-      include: { barberProfile: true },
-    });
+
+    return authUser;
+  } catch (profileError) {
+    // Pencegahan Akun Yatim: jika transaksi pembuatan profil gagal, hapus akun autentikasi
+    try {
+      await prisma.user.delete({ where: { id: authUser.id } });
+    } catch (cleanupErr) {
+      console.error("Gagal membersihkan orphan account:", cleanupErr);
+    }
+    throw profileError instanceof DomainError
+      ? profileError
+      : new DomainError("UNKNOWN", "Gagal menyelesaikan profil barbershop.");
   }
-
-  return user;
 }
-
-export interface DevLoginParams {
-  role: "OWNER" | "CAPSTER";
-  email: string;
-  name: string;
-}
-
-export async function findOrCreateDevUser(
-  params: DevLoginParams,
-  client: PrismaTransaction = prisma
-) {
-  const { role, email, name } = params;
-
-  let user = await client.user.findUnique({
-    where: { email },
-    include: { barberProfile: true, capsterProfile: true },
-  });
-
-  const finalRole = user ? user.role : role;
-
-  if (!user) {
-    user = await client.user.create({
-      data: {
-        email,
-        name,
-        role,
-        ...(role === "OWNER"
-          ? {
-              barberProfile: {
-                create: {
-                  shopName: "Roots Barbershop",
-                  address: "Jl. Kemang Raya No. 12",
-                  city: "Jakarta Selatan",
-                  whatsapp: "6281234567890",
-                  chairCount: 4,
-                },
-              },
-            }
-          : {
-              capsterProfile: {
-                create: {
-                  experienceYears: 3,
-                  skills: ["Skin Fade", "Classic Cut", "Beard Trim"],
-                  dailyRate: 250000,
-                  whatsapp: "6289876543210",
-                },
-              },
-            }),
-      },
-      include: { barberProfile: true, capsterProfile: true },
-    });
-  }
-
-  return { user, finalRole };
-}
-

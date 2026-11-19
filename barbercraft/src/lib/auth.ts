@@ -1,115 +1,79 @@
-import { cookies } from "next/headers";
+import { cache } from "react";
+import { headers } from "next/headers";
+import { auth } from "./auth/better-auth";
 import { prisma } from "@/lib/prisma";
-import type { Role, User, BarberProfile, CapsterProfile } from "@prisma/client";
+import type { Role, BarberProfile, CapsterProfile } from "@prisma/client";
 
-export type CurrentUser = User & {
+export type SafeUser = {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+  phone: string | null;
+  role: Role;
+  createdAt: Date;
+  updatedAt: Date;
   barberProfile: BarberProfile | null;
   capsterProfile: CapsterProfile | null;
 };
 
-/**
- * Temporary auth placeholder:
- * Reads a temporary dev cookie (userId / userRole) to simulate authentication.
- * IN REAL PRODUCTION: Replace this with real session/cookie/JWT auth.
- */
-export async function getCurrentUser(): Promise<CurrentUser | null> {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("userId")?.value;
-  const userRole = cookieStore.get("userRole")?.value as Role | undefined;
+export type CurrentUser = SafeUser;
 
-  if (!userId) {
+/**
+ * Single source of truth untuk mengambil data session user yang sedang aktif.
+ * Menggunakan React cache() agar deduplikasi request berjalan otomatis dalam 1 render cycle.
+ * Memakai select eksplisit agar field sensitif (password, token, hash) tidak pernah terekspos.
+ */
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
+  let session = null;
+
+  try {
+    const h = await headers();
+    session = await auth.api.getSession({
+      headers: h,
+    });
+  } catch (authError: unknown) {
+    // Next.js dynamic server usage error saat prerendering harus di-rethrow agar rute otomatis dynamic
+    if (
+      authError &&
+      typeof authError === "object" &&
+      "digest" in authError &&
+      authError.digest === "DYNAMIC_SERVER_USAGE"
+    ) {
+      throw authError;
+    }
+    console.error("Gagal membaca session Better Auth:", authError);
+    return null;
+  }
+
+  if (!session || !session.user) {
     return null;
   }
 
   try {
-    // 1. Coba cari berdasarkan ID
-    let user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        avatarUrl: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
         barberProfile: true,
         capsterProfile: true,
       },
     });
 
-    if (user) return user;
+    if (!user) {
+      return null;
+    }
 
-    // 2. Jika ID berupa string cookie lama (misal "mock-owner"), cari berdasarkan email dev
-    const defaultEmail = userRole === "CAPSTER" ? "capster@barbercraft.com" : "owner@rootsbarbershop.com";
-    user = await prisma.user.findUnique({
-      where: { email: defaultEmail },
-      include: {
-        barberProfile: true,
-        capsterProfile: true,
-      },
-    });
-
-    if (user) return user;
-  } catch {
-    // If DB is offline or prisma client not generated yet, fallback to mock object
+    return user;
+  } catch (dbError) {
+    console.error("Error database saat mengambil detail user dari session:", dbError);
+    throw dbError; // Jangan menelan database error yang tak terduga
   }
-
-  // Fallback dev mock user agar dashboard langsung bisa direview/dites
-  const isOwner = userRole === "OWNER" || userId.includes("owner");
-  return {
-    id: userId,
-    email: isOwner ? "owner@rootsbarbershop.com" : "capster@barbercraft.com",
-    password: null,
-    name: isOwner ? "Roots Barbershop Owner" : "Arya Pratama",
-    avatarUrl: null,
-    phone: "6281234567890",
-    role: isOwner ? ("OWNER" as Role) : ("CAPSTER" as Role),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    barberProfile: isOwner
-      ? {
-          id: "mock-barber-id",
-          userId: userId,
-          shopName: "Roots Barbershop",
-          address: "Jl. Kemang Raya No. 12",
-          city: "Jakarta Selatan",
-          latitude: -6.2607,
-          longitude: 106.8159,
-          whatsapp: "6281234567890",
-          chairCount: 4,
-          openTime: "10.00",
-          closeTime: "21.00",
-          openDays: [1, 2, 3, 4, 5, 6, 7],
-          sop: "Datang 15 menit sebelum shift, bawa alat lengkap, seragam rapi.",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-      : null,
-    capsterProfile: !isOwner
-      ? {
-          id: "mock-capster-id",
-          userId: userId,
-          experienceYears: 3,
-          skills: ["Skin Fade", "Classic Cut", "Beard Trim"],
-          dailyRate: 250000,
-          whatsapp: "6289876543210",
-          isAvailable: true,
-          portfolio: [],
-          certificates: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-      : null,
-  };
-}
-
-/**
- * Requires a specific role or redirects appropriately.
- */
-export async function requireUserWithRole(requiredRole: Role): Promise<CurrentUser> {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    throw new Error("UNAUTHORIZED");
-  }
-
-  if (user.role !== requiredRole) {
-    throw new Error("FORBIDDEN");
-  }
-
-  return user;
-}
+});

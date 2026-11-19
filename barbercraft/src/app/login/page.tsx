@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { setDevUserCookie } from "@/app/actions/auth";
+import { loginAction } from "@/app/actions/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,22 +11,23 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const role = email.toLowerCase().includes("capster") ? "CAPSTER" : "OWNER";
-    const res = await setDevUserCookie(role, email);
-    const targetRole = (res.ok && res.data?.role) ? res.data.role : role;
-    router.push(targetRole === "CAPSTER" ? "/capster" : "/owner");
-    router.refresh();
-  };
+    setErrorMsg(null);
 
-  const handleDevLogin = async (role: "OWNER" | "CAPSTER") => {
-    setIsSubmitting(true);
-    await setDevUserCookie(role);
-    router.push(role === "CAPSTER" ? "/capster" : "/owner");
-    router.refresh();
+    const res = await loginAction({ email, password });
+
+    if (res.ok) {
+      const targetRole = res.data.role;
+      router.push(targetRole === "CAPSTER" ? "/capster" : targetRole === "OWNER" ? "/owner" : "/register/role");
+      router.refresh();
+    } else {
+      setIsSubmitting(false);
+      setErrorMsg(res.error || "Email atau kata sandi tidak valid.");
+    }
   };
 
   return (
@@ -62,31 +63,14 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Quick Dev Switcher */}
-          <div className="mb-4 p-3 bg-[#FDE8D8] border border-[#F26B21]/30 rounded-[10px] space-y-2">
-            <div className="text-xs font-bold text-[#1B1B1B]">Coba Masuk Dashboard (Dev Mode):</div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleDevLogin("OWNER")}
-                disabled={isSubmitting}
-                className="flex-1 bg-[#F26B21] hover:bg-[#D85812] text-white text-xs font-bold py-2 rounded-[8px] transition-all cursor-pointer text-center"
-              >
-                Masuk sbg Owner
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDevLogin("CAPSTER")}
-                disabled={isSubmitting}
-                className="flex-1 bg-[#1B1B1B] hover:bg-black text-white text-xs font-bold py-2 rounded-[8px] transition-all cursor-pointer text-center"
-              >
-                Masuk sbg Capster
-              </button>
-            </div>
-          </div>
-
           {/* Form Card Container */}
           <div className="bg-white border border-[#E6DFD3] rounded-[12px] p-5 sm:p-7 shadow-[0_1px_2px_rgba(27,27,27,0.06)] space-y-4 transition-all duration-300 hover:shadow-md">
+            {errorMsg && (
+              <div className="p-3 bg-red-50 border border-[#C0392B]/20 text-[#C0392B] text-xs font-semibold rounded-[8px]">
+                {errorMsg}
+              </div>
+            )}
+
             <form className="space-y-4" onSubmit={handleSubmit}>
               {/* Email Field */}
               <div className="space-y-1.5">
@@ -108,7 +92,7 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Password Field with inline Lupa kata sandi */}
+              {/* Password Field */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label
@@ -129,8 +113,10 @@ export default function LoginPage() {
                     className="w-full min-h-[46px] sm:min-h-[48px] pl-4 pr-24 bg-transparent text-sm font-normal text-[#1B1B1B] placeholder-[#8C8479] border-none focus:ring-0 focus:outline-none"
                     id="password"
                     name="password"
-                    placeholder="••••••••"
+                    placeholder="Minimal 8 karakter"
                     required
+                    minLength={8}
+                    maxLength={128}
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

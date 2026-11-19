@@ -1,6 +1,5 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { runAction } from "@/server/action-helper";
 import { registerCapster, registerOwner } from "@/server/services/auth";
 import type { ActionResult } from "@/server/types";
@@ -17,7 +16,6 @@ export interface RegisterBarberInput {
 
 export async function registerBarberAction(input: RegisterBarberInput): Promise<ActionResult> {
   return runAction(async () => {
-    const cookieStore = await cookies();
     const email = input.email.trim().toLowerCase();
     const name = input.fullName.trim();
     const cleanPhone = input.whatsapp.replace(/\D/g, "");
@@ -27,17 +25,15 @@ export async function registerBarberAction(input: RegisterBarberInput): Promise<
       ? cleanPhone
       : "62" + cleanPhone;
 
-    const user = await registerCapster({
+    await registerCapster({
       email,
       name,
+      password: input.password,
       whatsapp,
       experienceYears: input.experienceYears,
       skills: input.skills,
       expectedRate: input.expectedRate,
     });
-
-    cookieStore.set("userId", user.id, { path: "/" });
-    cookieStore.set("userRole", "CAPSTER", { path: "/" });
   });
 }
 
@@ -53,7 +49,6 @@ export interface RegisterOwnerInput {
 
 export async function registerOwnerAction(input: RegisterOwnerInput): Promise<ActionResult> {
   return runAction(async () => {
-    const cookieStore = await cookies();
     const email = input.email.trim().toLowerCase();
     const cleanPhone = input.whatsapp.replace(/\D/g, "");
     const whatsapp = cleanPhone.startsWith("0")
@@ -62,16 +57,14 @@ export async function registerOwnerAction(input: RegisterOwnerInput): Promise<Ac
       ? cleanPhone
       : "62" + cleanPhone;
 
-    const user = await registerOwner({
+    await registerOwner({
       email,
       shopName: input.shopName.trim(),
+      password: input.password,
       address: input.address.trim(),
       city: input.city.trim(),
       whatsapp,
       chairCount: input.chairCount || 2,
     });
-
-    cookieStore.set("userId", user.id, { path: "/" });
-    cookieStore.set("userRole", "OWNER", { path: "/" });
   });
 }

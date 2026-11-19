@@ -45,7 +45,8 @@ export default function RegisterBarberPage() {
   const isFormValid =
     fullName.trim().length > 0 &&
     email.trim().length > 0 &&
-    password.trim().length >= 6 &&
+    password.trim().length >= 8 &&
+    password.trim().length <= 128 &&
     experience.trim().length > 0 &&
     whatsapp.trim().length > 0;
 
@@ -207,8 +208,10 @@ export default function RegisterBarberPage() {
                       className="w-full h-12 pl-4 pr-24 bg-transparent text-sm text-[#1b1b1b] placeholder:text-[#8c7166]/60 focus:outline-none border-none"
                       id="password"
                       name="password"
-                      placeholder="Minimal 6 karakter"
+                      placeholder="Minimal 8 karakter"
                       required
+                      minLength={8}
+                      maxLength={128}
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}

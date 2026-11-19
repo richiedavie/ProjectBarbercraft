@@ -168,7 +168,7 @@ The first beta of BarberCraft sets up the project foundation and delivers the fi
 ### Known limitations
 
 - The login form is not connected to any authentication system.
-- Buttons and links such as placement requests, applying as a capster, WhatsApp, sign-up, and password reset are placeholders.
+- Buttons and links such as placement requests, applying as a caapster, WhatsApp, sign-up, and password reset are placeholders.
 - All capster profiles, rates, statistics, and guarantees shown are placeholder content and must be replaced or verified before a public launch.
 - There is no backend, database, or payment system yet.
 

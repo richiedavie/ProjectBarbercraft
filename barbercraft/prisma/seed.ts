@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { hashPassword } from "better-auth/crypto";
 
 const prisma = new PrismaClient();
 
@@ -21,11 +22,22 @@ function getUtcShiftDates(dayOffset: number, startHour: number, endHour: number)
 }
 
 async function main() {
+  if (process.env.NODE_ENV === "production") {
+    console.error("EROR: Seed database tidak boleh dijalankan di environment production!");
+    process.exit(1);
+  }
+
   console.log("Menjalankan seed database BarberCraft (Indonesian dev data)...");
 
-  // Hapus data dummy bawaan seed sebelumnya (jika ada) agar tidak duplikat saat db:seed dijalankan ulang,
-  // tanpa menyentuh data barbershop/shift buatan user asli
+  // Hapus data dummy bawaan seed sebelumnya jika ada
   const seedEmails = [
+    "owner@roots.example.com",
+    "owner@gentlemen.example.com",
+    "arya@capster.example.com",
+    "budi@capster.example.com",
+    "reza@capster.example.com",
+    "dimas@capster.example.com",
+    // Clean old dev emails
     "owner@rootsbarbershop.com",
     "owner@gentlemencut.com",
     "capster@barbercraft.com",
@@ -33,6 +45,7 @@ async function main() {
     "reza.classic@gmail.com",
     "dimas.newbie@gmail.com",
   ];
+
   const oldSeedUsers = await prisma.user.findMany({
     where: { email: { in: seedEmails } },
     select: { id: true, barberProfile: { select: { id: true } } },
@@ -49,141 +62,153 @@ async function main() {
     await prisma.shift.deleteMany({ where: { shopId: { in: oldSeedShopIds } } });
     await prisma.capsterProfile.deleteMany({ where: { userId: { in: oldSeedUserIds } } });
     await prisma.barberProfile.deleteMany({ where: { userId: { in: oldSeedUserIds } } });
+    await prisma.session.deleteMany({ where: { userId: { in: oldSeedUserIds } } });
+    await prisma.account.deleteMany({ where: { userId: { in: oldSeedUserIds } } });
     await prisma.user.deleteMany({ where: { id: { in: oldSeedUserIds } } });
   }
 
-  // 1. Buat / Pastikan 2 Owner Barbershop
-  const owner1 = await prisma.user.upsert({
-    where: { email: "owner@rootsbarbershop.com" },
-    update: {},
-    create: {
-      email: "owner@rootsbarbershop.com",
-      name: "Bambang Pamungkas",
-      phone: "6281234567890",
-      role: "OWNER",
-      barberProfile: {
-        create: {
-          shopName: "Roots Barbershop Kemang",
-          address: "Jl. Kemang Raya No. 12, Bangka",
-          city: "Jakarta Selatan",
-          whatsapp: "6281234567890",
-          chairCount: 4,
-          openTime: "10.00",
-          closeTime: "21.00",
-          openDays: [1, 2, 3, 4, 5, 6, 7],
-          sop: "Wajib hadir 15 menit sebelum shift, mengenakan seragam rapi dan sepatu tertutup, serta menjaga kebersihan kursi pangkas.",
-        },
+  // Hash password standar untuk dev akun via Better Auth crypto
+  const defaultPasswordHash = await hashPassword("Password123!");
+
+  // Helper untuk membuat user + account Better Auth
+  async function createDevUser(data: {
+    email: string;
+    name: string;
+    phone: string;
+    role: "OWNER" | "CAPSTER";
+    barberProfile?: {
+      shopName: string;
+      address: string;
+      city: string;
+      whatsapp: string;
+      chairCount: number;
+      openTime?: string;
+      closeTime?: string;
+      openDays?: number[];
+      sop?: string;
+    };
+    capsterProfile?: {
+      experienceYears: number;
+      skills: string[];
+      dailyRate: number;
+      whatsapp: string;
+    };
+  }) {
+    const user = await prisma.user.create({
+      data: {
+        email: data.email,
+        name: data.name,
+        phone: data.phone,
+        role: data.role,
+        emailVerified: true,
+        ...(data.barberProfile ? { barberProfile: { create: data.barberProfile } } : {}),
+        ...(data.capsterProfile ? { capsterProfile: { create: data.capsterProfile } } : {}),
       },
+      include: { barberProfile: true, capsterProfile: true },
+    });
+
+    await prisma.account.create({
+      data: {
+        userId: user.id,
+        accountId: user.id,
+        providerId: "credential",
+        password: defaultPasswordHash,
+      },
+    });
+
+    return user;
+  }
+
+  // 1. Buat 2 Owner Barbershop
+  const owner1 = await createDevUser({
+    email: "owner@roots.example.com",
+    name: "Bambang Pamungkas",
+    phone: "6281234567890",
+    role: "OWNER",
+    barberProfile: {
+      shopName: "Roots Barbershop Kemang",
+      address: "Jl. Kemang Raya No. 12, Bangka",
+      city: "Jakarta Selatan",
+      whatsapp: "6281234567890",
+      chairCount: 4,
+      openTime: "10.00",
+      closeTime: "21.00",
+      openDays: [1, 2, 3, 4, 5, 6, 7],
+      sop: "Wajib hadir 15 menit sebelum shift, mengenakan seragam rapi dan sepatu tertutup, serta menjaga kebersihan kursi pangkas.",
     },
-    include: { barberProfile: true },
   });
 
-  const owner2 = await prisma.user.upsert({
-    where: { email: "owner@gentlemencut.com" },
-    update: {},
-    create: {
-      email: "owner@gentlemencut.com",
-      name: "Dedi Prasetyo",
-      phone: "6281987654321",
-      role: "OWNER",
-      barberProfile: {
-        create: {
-          shopName: "Gentlemen Cut Tebet",
-          address: "Jl. Tebet Barat Dalam Raya No. 45",
-          city: "Jakarta Selatan",
-          whatsapp: "6281987654321",
-          chairCount: 3,
-          openTime: "09.00",
-          closeTime: "20.00",
-          openDays: [2, 3, 4, 5, 6, 7],
-          sop: "Hospitality ramah, tawarkan handuk hangat setelah potong, bersihkan clipper dengan disinfektan.",
-        },
-      },
+  const owner2 = await createDevUser({
+    email: "owner@gentlemen.example.com",
+    name: "Dedi Prasetyo",
+    phone: "6281987654321",
+    role: "OWNER",
+    barberProfile: {
+      shopName: "Gentlemen Cut Tebet",
+      address: "Jl. Tebet Barat Dalam Raya No. 45",
+      city: "Jakarta Selatan",
+      whatsapp: "6281987654321",
+      chairCount: 3,
+      openTime: "09.00",
+      closeTime: "20.00",
+      openDays: [2, 3, 4, 5, 6, 7],
+      sop: "Hospitality ramah, tawarkan handuk hangat setelah potong, bersihkan clipper dengan disinfektan.",
     },
-    include: { barberProfile: true },
   });
 
   console.log("2 Barbershop Owners terdaftar:", owner1.name, "&", owner2.name);
 
-  // 2. Buat / Pastikan 4 Capster
-  const capster1 = await prisma.user.upsert({
-    where: { email: "capster@barbercraft.com" },
-    update: {},
-    create: {
-      email: "capster@barbercraft.com",
-      name: "Arya Pratama",
-      phone: "6289876543210",
-      role: "CAPSTER",
-      capsterProfile: {
-        create: {
-          experienceYears: 4,
-          skills: ["Skin Fade", "Classic Cut", "Beard Trim", "Hot Towel Massage"],
-          dailyRate: 250000,
-          whatsapp: "6289876543210",
-        },
-      },
+  // 2. Buat 4 Capster
+  const capster1 = await createDevUser({
+    email: "arya@capster.example.com",
+    name: "Arya Pratama",
+    phone: "6289876543210",
+    role: "CAPSTER",
+    capsterProfile: {
+      experienceYears: 4,
+      skills: ["Skin Fade", "Classic Cut", "Beard Trim", "Hot Towel Massage"],
+      dailyRate: 250000,
+      whatsapp: "6289876543210",
     },
-    include: { capsterProfile: true },
   });
 
-  const capster2 = await prisma.user.upsert({
-    where: { email: "budi.fade@gmail.com" },
-    update: {},
-    create: {
-      email: "budi.fade@gmail.com",
-      name: "Budi Santoso",
-      phone: "6281311223344",
-      role: "CAPSTER",
-      capsterProfile: {
-        create: {
-          experienceYears: 2,
-          skills: ["Skin Fade", "Pompadour", "Hair Tattoo"],
-          dailyRate: 220000,
-          whatsapp: "6281311223344",
-        },
-      },
+  const capster2 = await createDevUser({
+    email: "budi@capster.example.com",
+    name: "Budi Santoso",
+    phone: "6281311223344",
+    role: "CAPSTER",
+    capsterProfile: {
+      experienceYears: 2,
+      skills: ["Skin Fade", "Pompadour", "Hair Tattoo"],
+      dailyRate: 220000,
+      whatsapp: "6281311223344",
     },
-    include: { capsterProfile: true },
   });
 
-  const capster3 = await prisma.user.upsert({
-    where: { email: "reza.classic@gmail.com" },
-    update: {},
-    create: {
-      email: "reza.classic@gmail.com",
-      name: "Reza Ramadhan",
-      phone: "6285788990011",
-      role: "CAPSTER",
-      capsterProfile: {
-        create: {
-          experienceYears: 6,
-          skills: ["Classic Cut", "Beard Trim", "Coloring"],
-          dailyRate: 300000,
-          whatsapp: "6285788990011",
-        },
-      },
+  const capster3 = await createDevUser({
+    email: "reza@capster.example.com",
+    name: "Reza Ramadhan",
+    phone: "6285788990011",
+    role: "CAPSTER",
+    capsterProfile: {
+      experienceYears: 6,
+      skills: ["Classic Cut", "Beard Trim", "Coloring"],
+      dailyRate: 300000,
+      whatsapp: "6285788990011",
     },
-    include: { capsterProfile: true },
   });
 
-  const capster4 = await prisma.user.upsert({
-    where: { email: "dimas.newbie@gmail.com" },
-    update: {},
-    create: {
-      email: "dimas.newbie@gmail.com",
-      name: "Dimas Anggara",
-      phone: "6287766554433",
-      role: "CAPSTER",
-      capsterProfile: {
-        create: {
-          experienceYears: 1,
-          skills: ["Classic Cut", "Pompadour"],
-          dailyRate: 180000,
-          whatsapp: "6287766554433",
-        },
-      },
+  const capster4 = await createDevUser({
+    email: "dimas@capster.example.com",
+    name: "Dimas Anggara",
+    phone: "6287766554433",
+    role: "CAPSTER",
+    capsterProfile: {
+      experienceYears: 1,
+      skills: ["Classic Cut", "Pompadour"],
+      dailyRate: 180000,
+      whatsapp: "6287766554433",
     },
-    include: { capsterProfile: true },
   });
 
   console.log("4 Capster profesional terdaftar:", capster1.name, capster2.name, capster3.name, capster4.name);
@@ -192,7 +217,6 @@ async function main() {
   const shop2Id = owner2.barberProfile!.id;
 
   // 3. Buat Shift Realistis
-  // Shift 1: Hari ini di Roots Barbershop (OPEN)
   const s1 = getUtcShiftDates(0, 10, 18);
   const shift1 = await prisma.shift.create({
     data: {
@@ -212,7 +236,6 @@ async function main() {
     },
   });
 
-  // Shift 2: Besok di Roots Barbershop (BOOKED - Kuota penuh)
   const s2 = getUtcShiftDates(1, 13, 21);
   const shift2 = await prisma.shift.create({
     data: {
@@ -232,7 +255,6 @@ async function main() {
     },
   });
 
-  // Shift 3: Lusa di Gentlemen Cut Tebet (OPEN)
   const s3 = getUtcShiftDates(2, 9, 17);
   await prisma.shift.create({
     data: {
@@ -247,12 +269,11 @@ async function main() {
       capsterCount: 1,
       minExperienceYears: 1,
       requiredSkills: ["Classic Cut", "Hot Towel Massage"],
-      notes: "Pelanggan mayoritas pekerja kantoran dan pejabat lokal.",
+      notes: "Prioritaskan pelanggan booking online terlebih dahulu.",
       status: "OPEN",
     },
   });
 
-  // Shift 4: 3 Hari lagi di Gentlemen Cut Tebet (OPEN)
   const s4 = getUtcShiftDates(3, 11, 19);
   await prisma.shift.create({
     data: {
@@ -272,7 +293,6 @@ async function main() {
     },
   });
 
-  // Shift 5: Minggu lalu - Selesai (COMPLETED) di Roots Barbershop
   const s5 = getUtcShiftDates(-5, 10, 18);
   const shiftPast = await prisma.shift.create({
     data: {
@@ -285,7 +305,7 @@ async function main() {
       endAt: s5.endAt,
       payAmount: 250000,
       capsterCount: 1,
-      minExperienceYears: 2,
+      minExperienceYears: 1,
       requiredSkills: ["Classic Cut"],
       status: "COMPLETED",
     },
@@ -293,36 +313,25 @@ async function main() {
 
   console.log("5 Shift harian telah dibuat.");
 
-  // 4. Buat Booking & Pelamar
-  // Capster 1 melamar Shift 1 (PENDING)
+  // 4. Buat Booking
   await prisma.booking.create({
     data: {
       shiftId: shift1.id,
       capsterId: capster1.capsterProfile!.id,
       status: "PENDING",
+      notes: "Siap hadir on time dengan perlengkapan pribadi.",
     },
   });
 
-  // Capster 2 melamar Shift 1 (PENDING)
-  await prisma.booking.create({
-    data: {
-      shiftId: shift1.id,
-      capsterId: capster2.capsterProfile!.id,
-      status: "PENDING",
-    },
-  });
-
-  // Capster 3 diterima di Shift 2 (ACCEPTED)
   await prisma.booking.create({
     data: {
       shiftId: shift2.id,
-      capsterId: capster3.capsterProfile!.id,
+      capsterId: capster2.capsterProfile!.id,
       status: "ACCEPTED",
     },
   });
 
-  // Capster 1 menyelesaikan Shift Past (COMPLETED)
-  const completedBooking = await prisma.booking.create({
+  const pastBooking = await prisma.booking.create({
     data: {
       shiftId: shiftPast.id,
       capsterId: capster1.capsterProfile!.id,
@@ -330,37 +339,34 @@ async function main() {
     },
   });
 
-  // 5. Review & Ulasan untuk Capster 1 dari Owner 1
+  // 5. Review & Transaksi
   await prisma.review.create({
     data: {
-      bookingId: completedBooking.id,
+      bookingId: pastBooking.id,
       reviewerId: owner1.id,
       rating: 5,
-      comment: "Potongan sangat rapi, customer puas dan datang tepat waktu. Sangat direkomendasikan!",
+      comment: "Kerja sangat rapi, komunikasi baik dengan customer, datang tepat waktu.",
     },
   });
 
-  // 6. Transaksi Dompet untuk Capster 1
-  // Bayaran shift selesai (EARNING COMPLETED)
   await prisma.transaction.create({
     data: {
       userId: capster1.id,
-      bookingId: completedBooking.id,
+      bookingId: pastBooking.id,
       type: "EARNING",
       amount: 250000,
       status: "COMPLETED",
     },
   });
 
-  // Simulasi penarikan dana sebagian (WITHDRAWAL COMPLETED)
   await prisma.transaction.create({
     data: {
       userId: capster1.id,
       type: "WITHDRAWAL",
-      amount: 100000,
+      amount: 150000,
       status: "COMPLETED",
       bankName: "BCA",
-      accountNumber: "1234567890",
+      accountNumber: "8820192837",
     },
   });
 
@@ -369,7 +375,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error("Error saat seeding data:", e);
+    console.error(e);
     process.exit(1);
   })
   .finally(async () => {
