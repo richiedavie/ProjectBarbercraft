@@ -17,6 +17,9 @@ export async function setDevUserCookie(role: "OWNER" | "CAPSTER", inputEmail?: s
       include: { barberProfile: true, capsterProfile: true },
     });
 
+    // Jika user sudah ada di DB, gunakan role aslinya dari DB
+    const finalRole = user ? user.role : role;
+
     if (!user) {
       user = await prisma.user.create({
         data: {
@@ -51,26 +54,38 @@ export async function setDevUserCookie(role: "OWNER" | "CAPSTER", inputEmail?: s
     }
 
     cookieStore.set("userId", user.id, { path: "/" });
+    cookieStore.set("userRole", finalRole, { path: "/" });
+    return { success: true, role: finalRole };
   } catch (e) {
     console.error("Gagal login:", e);
     // Fallback jika database belum connect/migrate
     cookieStore.set("userId", `mock-${role.toLowerCase()}`, { path: "/" });
+    cookieStore.set("userRole", role, { path: "/" });
+    return { success: true, role };
   }
-
-  cookieStore.set("userRole", role, { path: "/" });
 }
 
 /**
  * Server Action to log out:
- * Clears temporary dev session cookies and redirects to /login.
+ * Clears temporary dev session cookies and redirects to /login or custom internal path.
  * IN REAL PRODUCTION: Replace this with real session invalidation.
  */
-export async function logoutAction() {
+export async function logoutAction(redirectTo?: string) {
   const cookieStore = await cookies();
+  cookieStore.set("userId", "", { path: "/", maxAge: 0 });
+  cookieStore.set("userRole", "", { path: "/", maxAge: 0 });
   cookieStore.delete("userId");
   cookieStore.delete("userRole");
 
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/", "layout");
+
   const { redirect } = await import("next/navigation");
-  redirect("/login");
+  // Restricted to internal paths only starting with "/"
+  const target = redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")
+    ? redirectTo
+    : "/login";
+
+  redirect(target);
 }
 

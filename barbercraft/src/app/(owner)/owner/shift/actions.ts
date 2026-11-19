@@ -15,34 +15,56 @@ export async function deleteShiftAction(shiftId: string) {
   }
 
   try {
-    // Pastikan shift ini milik barbershop user yang bersangkutan
-    const shift = await prisma.shift.findUnique({
-      where: { id: shiftId },
-      include: { shop: true },
+    const result = await prisma.$transaction(async (tx) => {
+      // Pastikan shift ini milik barbershop user yang bersangkutan
+      const shift = await tx.shift.findUnique({
+        where: { id: shiftId },
+        include: {
+          shop: true,
+          bookings: {
+            where: { status: "ACCEPTED" },
+          },
+        },
+      });
+
+      if (!shift) {
+        return {
+          success: false,
+          error: "Shift tidak ditemukan.",
+        };
+      }
+
+      // Cek kepemilikan shop
+      if (user.barberProfile && shift.shopId !== user.barberProfile.id) {
+        return {
+          success: false,
+          error: "Anda tidak berhak menghapus shift ini.",
+        };
+      }
+
+      // Tolak jika ada booking yang sudah ACCEPTED
+      if (shift.bookings && shift.bookings.length > 0) {
+        return {
+          success: false,
+          error: "Tidak dapat menghapus shift yang sudah memiliki capster diterima. Batalkan atau selesaikan shift terlebih dahulu.",
+        };
+      }
+
+      // Hapus shift (otomatis cascade booking non-ACCEPTED jika ada)
+      await tx.shift.delete({
+        where: { id: shiftId },
+      });
+
+      return { success: true };
     });
 
-    if (!shift) {
-      return {
-        success: false,
-        error: "Shift tidak ditemukan.",
-      };
+    if (!result.success) {
+      return result;
     }
-
-    // Cek kepemilikan shop
-    if (user.barberProfile && shift.shopId !== user.barberProfile.id) {
-      return {
-        success: false,
-        error: "Anda tidak berhak menghapus shift ini.",
-      };
-    }
-
-    // Hapus shift (cascade booking jika ada)
-    await prisma.shift.delete({
-      where: { id: shiftId },
-    });
 
     revalidatePath("/owner");
     revalidatePath("/owner/shift");
+    revalidatePath("/owner/pelamar");
     revalidatePath("/capster");
 
     return { success: true };
@@ -54,4 +76,3 @@ export async function deleteShiftAction(shiftId: string) {
     };
   }
 }
-

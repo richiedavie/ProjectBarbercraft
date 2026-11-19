@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { registerBarberAction } from "@/app/actions/register";
 
 const SKILL_OPTIONS = [
   "Skin Fade",
@@ -48,15 +49,35 @@ export default function RegisterBarberPage() {
     experience.trim().length > 0 &&
     whatsapp.trim().length > 0;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      alert("Pendaftaran Capster / Barber berhasil! Selamat datang di BarberCraft.");
-      router.push("/");
-    }, 600);
+    let expYears = 1;
+    if (experience.includes("3 - 5")) expYears = 3;
+    else if (experience.includes("Lebih")) expYears = 5;
+    else if (experience.includes("1 - 2")) expYears = 2;
+
+    const rateNum = Number(expectedRate.replace(/\D/g, "")) || 200000;
+
+    const res = await registerBarberAction({
+      fullName,
+      email,
+      password,
+      experienceYears: expYears,
+      whatsapp,
+      skills: selectedSkills,
+      expectedRate: rateNum,
+    });
+
+    if (res.success) {
+      router.push("/capster");
+      router.refresh();
+    } else {
+      setIsSubmitting(false);
+      alert(res.error || "Gagal mendaftar capster.");
+    }
   };
 
   return (

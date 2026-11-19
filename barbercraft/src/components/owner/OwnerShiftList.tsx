@@ -39,7 +39,7 @@ export function OwnerShiftList({ shifts }: OwnerShiftListProps) {
   ];
 
   let currentList = activeShifts;
-  let emptyText = copy.ownerShift.emptyActive;
+  let emptyText: string = copy.ownerShift.emptyActive;
   if (activeTab === "filled") {
     currentList = filledShifts;
     emptyText = copy.ownerShift.emptyFilled;

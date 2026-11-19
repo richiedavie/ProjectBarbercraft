@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { NavItem, BottomNavItem } from "@/components/shared/NavItem";
 import { AccountMenu } from "@/components/shared/AccountMenu";
+import { logoutAction } from "@/app/actions/auth";
 import { copy } from "@/lib/copy";
 
 interface OwnerShellProps {
@@ -66,7 +67,7 @@ export function OwnerShell({
   return (
     <div className="min-h-screen bg-[#FFF9F0] flex flex-col md:flex-row text-[#1B1B1B]">
       {/* Desktop Sidebar: 240px, 1px right border */}
-      <aside className="hidden md:flex flex-col w-[240px] shrink-0 bg-white border-r border-[#E6DFD3] min-h-screen p-4 justify-between">
+      <aside className="hidden md:flex flex-col w-[240px] shrink-0 bg-white border-r border-[#E6DFD3] h-screen sticky top-0 p-4 justify-between">
         <div>
           {/* Brand */}
           <Link href="/owner" className="flex items-center gap-2.5 px-3 py-3 mb-6">
@@ -94,20 +95,26 @@ export function OwnerShell({
 
         {/* Logout */}
         <div className="pt-4 border-t border-[#E6DFD3]">
-          <Link
-            href="/login"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm text-[#5C5C5C] hover:text-[#1B1B1B] hover:bg-black/5 font-medium transition-colors"
+          <form
+            action={async () => {
+              await logoutAction("/login");
+            }}
           >
-            <LogOut className="w-5 h-5 text-[#5C5C5C]" strokeWidth={1.5} />
-            <span>{copy.logout}</span>
-          </Link>
+            <button
+              type="submit"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm text-[#5C5C5C] hover:text-[#C0392B] hover:bg-black/5 font-medium transition-colors cursor-pointer text-left"
+            >
+              <LogOut className="w-5 h-5 text-[#5C5C5C]" strokeWidth={1.5} />
+              <span>{copy.logout}</span>
+            </button>
+          </form>
         </div>
       </aside>
 
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-h-screen pb-20 md:pb-8">
         {/* Top Bar: 72px */}
-        <header className="h-[72px] bg-white border-b border-[#E6DFD3] px-4 md:px-8 flex items-center justify-between shrink-0">
+        <header className="sticky top-0 z-30 h-[72px] bg-white border-b border-[#E6DFD3] px-4 md:px-8 flex items-center justify-between shrink-0">
           <div className="md:hidden flex items-center gap-2">
             <div className="w-7 h-7 rounded-[6px] bg-[#F26B21] flex items-center justify-center text-white">
               <Scissors className="w-3.5 h-3.5" strokeWidth={1.5} />

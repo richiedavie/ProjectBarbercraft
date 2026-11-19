@@ -1,6 +1,5 @@
 import * as React from "react";
-import Link from "next/link";
-import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import { Calendar, Clock, Users } from "lucide-react";
 import { formatDateId, formatRupiah, formatTimeRange } from "@/lib/format";
 import { SkillChip } from "@/components/shared/Chips";
 import { DeleteShiftButton } from "@/components/owner/DeleteShiftButton";
@@ -77,7 +76,11 @@ export function ShiftCard({
           </div>
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-[#5C5C5C] shrink-0" strokeWidth={1.5} />
-            <span>{formatTimeRange(shift.startTime, shift.endTime)}</span>
+            <span>
+              {shift.startAt && shift.endAt
+                ? formatTimeRange(new Date(shift.startAt), new Date(shift.endAt))
+                : formatTimeRange(shift.startTime, shift.endTime)}
+            </span>
           </div>
         </div>
 

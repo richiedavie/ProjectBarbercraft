@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { CapsterProfileForm } from "@/components/forms/CapsterProfileForm";
 import { prisma } from "@/lib/prisma";
-import { copy } from "@/lib/copy";
+import { Star } from "lucide-react";
 
 export default async function CapsterProfilePage() {
   const user = await getCurrentUser();
@@ -49,7 +49,10 @@ export default async function CapsterProfilePage() {
         <div>
           <h1 className="text-2xl font-bold text-[#1B1B1B]">{user?.name ?? "Capster"}</h1>
           <div className="flex items-center gap-3 mt-1.5 text-xs text-[#5C5C5C]">
-            <span className="font-semibold text-[#1B1B1B]">⭐ {rating} Rating</span>
+            <span className="font-semibold text-[#1B1B1B] inline-flex items-center gap-1">
+              <Star className="w-3.5 h-3.5 fill-[#F26B21] text-[#F26B21]" />
+              {rating} Rating
+            </span>
             <span>•</span>
             <span>{completedShiftsCount} Shift Selesai</span>
             <span>•</span>

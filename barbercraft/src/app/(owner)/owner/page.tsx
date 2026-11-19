@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { getOwnerMetrics, getOwnerUpcomingShifts } from "@/lib/queries/owner";
 import { StatCard } from "@/components/shared/StatCard";

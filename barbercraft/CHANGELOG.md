@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Whi
 
 ---
 
+## [0.0.4b] - 2026-11-16
+
+### Phase 3, 4, 5 & 6: Pelamar, Feed Capster, Dompet & Production Polish
+
+Rilis ini menyelesaikan implementasi end-to-end platform BarberCraft mulai dari Phase 3 (Manajemen Pelamar Owner), Phase 4 (Feed Shift & Lamaran Capster), Phase 5 (Dompet & Pencairan Dana Capster), hingga Phase 6 (Dataset Seed, Skeleton Loading & Error Boundaries).
+
+### Added
+
+- **Phase 3: Owner Pelamar Management (`/owner/pelamar`)**:
+  - Filter tab pelamar (*Semua*, *Menunggu*, *Diterima*, *Ditolak*) dengan badge hitungan dinamis via `groupBy`.
+  - Atomic server actions `acceptApplicantAction` & `rejectApplicantAction` dengan row locking (`FOR UPDATE`) dan sinkronisasi kapasitas `Shift.status` (`FILLED`/`OPEN`).
+  - WhatsApp Direct Action dengan normalisasi nomor telepon (+62).
+  - Agregasi rating dinamis dan status badge pelamar.
+- **Phase 4: Capster Shift Feed & Lamaran (`/capster`, `/capster/lamaran`)**:
+  - Feed shift harian aktif dengan filter lokasi/kota dan urutan tanggal.
+  - Server actions `applyShiftAction` & `cancelApplicationAction` dengan proteksi kuota shift dan duplikasi lamaran.
+  - Halaman pelacakan status lamaran capster dengan tab status dan kontak WhatsApp pemilik barbershop jika diterima.
+- **Phase 5: Capster Wallet & Keuangan (`/capster/dompet`)**:
+  - Ringkasan pendapatan: total saldo bisa ditarik, pendapatan minggu ini, dan shift selesai.
+  - Riwayat transaksi (pemasukan shift & penarikan dana) dengan status badge.
+  - Modal penarikan dana dengan validasi rekening bank dan nominal minimum.
+- **Phase 6: Dev Seed & Reliability (`prisma/seed.ts`, Skeletons, Boundaries)**:
+  - Script seed database komprehensif (`npm run db:seed`) menggunakan `node --experimental-strip-types` dengan data realistis: 2 Owner, 4 Capster, 5 Shift harian, Booking beragam status, review, dan transaksi dompet.
+  - Loading skeleton terintegrasi (`loading.tsx`) untuk layout `(owner)` dan `(capster)`.
+  - Error boundary terisolasi (`error.tsx`) untuk pemulihan runtime yang anggun.
+  - Perbaikan registrasi capster & owner (`registerBarberAction` & `registerOwnerAction`) yang langsung tersimpan ke PostgreSQL dan membuat session login otomatis.
+
+---
+
 ## [0.0.3b] - 2026-11-13
 
 ### Phase 2 & 2A: Owner Shift Management, Schema Hardening & Unified Profiles

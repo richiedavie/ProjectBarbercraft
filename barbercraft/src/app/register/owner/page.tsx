@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { registerOwnerAction } from "@/app/actions/register";
 
 export default function RegisterOwnerPage() {
   const router = useRouter();
@@ -36,15 +37,28 @@ export default function RegisterOwnerPage() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      alert("Pendaftaran Barbershop berhasil! Selamat datang di BarberCraft.");
-      router.push("/");
-    }, 600);
+    const res = await registerOwnerAction({
+      shopName,
+      email,
+      password,
+      address,
+      city: "Jakarta Selatan",
+      whatsapp,
+      chairCount: seatCount || 2,
+    });
+
+    if (res.success) {
+      router.push("/owner");
+      router.refresh();
+    } else {
+      setIsSubmitting(false);
+      alert(res.error || "Gagal mendaftar barbershop.");
+    }
   };
 
   return (

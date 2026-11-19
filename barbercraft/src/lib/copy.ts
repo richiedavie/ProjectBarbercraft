@@ -5,10 +5,22 @@
 export const copy = {
   brand: "BarberCraft",
   logout: "Keluar",
+  dashboardBtn: "Ke Dashboard",
+  completeRegistrationBtn: "Lengkapi Pendaftaran",
+  
+  landingNav: {
+    catalog: "Katalog Capster",
+    schemes: "Skema Penempatan",
+    howItWorks: "Cara Sewa",
+    advantages: "Keunggulan",
+    joinCapster: "Gabung Jadi Capster",
+    rentCapster: "Sewa Capster",
+  },
   
   roles: {
     owner: "OWNER",
     capster: "CAPSTER",
+    unassigned: "UNASSIGNED",
   },
 
   ownerNav: {

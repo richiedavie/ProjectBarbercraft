@@ -117,8 +117,10 @@ model Shift {
   
   title              String
   date               DateTime
-  startTime          String
-  endTime            String
+  startTime          String        // Legacy: keep for compatibility during migration
+  endTime            String        // Legacy: keep for compatibility during migration
+  startAt            DateTime      // Canonical UTC start timestamp
+  endAt              DateTime      // Canonical UTC end timestamp
   payType            PayType       @default(FLAT)
   payAmount          Int
   status             ShiftStatus   @default(OPEN)
@@ -154,6 +156,7 @@ model Booking {
 
   @@unique([shiftId, capsterId])
   @@index([status])
+  @@index([capsterId, status])
 }
 
 model Review {

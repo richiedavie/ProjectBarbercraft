@@ -7,9 +7,10 @@ import { logoutAction } from "@/app/actions/auth";
 interface AccountMenuProps {
   name: string;
   email: string;
-  role: "OWNER" | "CAPSTER";
+  role: "OWNER" | "CAPSTER" | "UNASSIGNED";
   avatarUrl?: string | null;
   initials: string;
+  redirectToOnLogout?: string;
 }
 
 export function AccountMenu({
@@ -18,6 +19,7 @@ export function AccountMenu({
   role,
   avatarUrl,
   initials,
+  redirectToOnLogout,
 }: AccountMenuProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -56,7 +58,7 @@ export function AccountMenu({
 
   const profileLink = role === "OWNER" ? "/owner/barbershop" : "/capster/profil";
   const profileLabel = role === "OWNER" ? "Profil Barbershop" : "Lihat Profil";
-  const roleLabel = role === "OWNER" ? "Owner" : "Capster";
+  const roleLabel = role === "OWNER" ? "Owner" : role === "CAPSTER" ? "Capster" : "";
 
   return (
     <div className="relative inline-block text-left" ref={menuRef}>
@@ -89,27 +91,34 @@ export function AccountMenu({
           <div className="px-4 py-3 min-h-[44px] flex flex-col justify-center">
             <p className="text-sm font-bold text-[#1B1B1B] truncate">{name}</p>
             <p className="text-xs text-[#5C5C5C] truncate">{email}</p>
-            <p className="text-xs text-[#1B1B1B] font-medium mt-1">{roleLabel}</p>
+            {roleLabel && <p className="text-xs text-[#1B1B1B] font-medium mt-1">{roleLabel}</p>}
           </div>
 
-          {/* 1px Divider */}
-          <div className="border-t border-[#E6DFD3]" />
-
-          {/* Profile Link */}
-          <Link
-            href={profileLink}
-            onClick={() => setIsOpen(false)}
-            role="menuitem"
-            className="flex items-center px-4 min-h-[44px] text-sm text-[#1B1B1B] hover:bg-[#FFF9F0] transition-colors font-medium"
-          >
-            {profileLabel}
-          </Link>
+          {/* Profile Link (Only for OWNER or CAPSTER) */}
+          {role !== "UNASSIGNED" && (
+            <>
+              <div className="border-t border-[#E6DFD3]" />
+              <Link
+                href={profileLink}
+                onClick={() => setIsOpen(false)}
+                role="menuitem"
+                className="flex items-center px-4 min-h-[44px] text-sm text-[#1B1B1B] hover:bg-[#FFF9F0] transition-colors font-medium"
+              >
+                {profileLabel}
+              </Link>
+            </>
+          )}
 
           {/* 1px Divider */}
           <div className="border-t border-[#E6DFD3]" />
 
           {/* Logout Action */}
-          <form action={logoutAction} className="w-full">
+          <form
+            action={async () => {
+              await logoutAction(redirectToOnLogout);
+            }}
+            className="w-full"
+          >
             <button
               type="submit"
               role="menuitem"

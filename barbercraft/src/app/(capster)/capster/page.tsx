@@ -1,12 +1,15 @@
-import { EmptyState } from "@/components/shared/EmptyState";
-import { copy } from "@/lib/copy";
+import { getCurrentUser } from "@/lib/auth";
+import { getCapsterFeedShifts } from "@/lib/queries/capster";
+import { CapsterFeedList } from "@/components/capster/CapsterFeedList";
 
-export default function CapsterFeedPage() {
+export default async function CapsterFeedPage() {
+  const user = await getCurrentUser();
+  const shifts = await getCapsterFeedShifts(user?.capsterProfile?.id);
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-[#1B1B1B]">{copy.capsterFeed.title}</h1>
-      <EmptyState heading={copy.capsterFeed.emptyHeading} />
-    </div>
+    <CapsterFeedList
+      initialShifts={shifts}
+      userCity={user?.phone ? "Jakarta" : undefined}
+    />
   );
 }
-

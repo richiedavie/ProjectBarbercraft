@@ -1,18 +1,11 @@
-import { EmptyState } from "@/components/shared/EmptyState";
-import { copy } from "@/lib/copy";
+import { getCurrentUser } from "@/lib/auth";
+import { getCapsterApplications } from "@/lib/queries/capster";
+import { CapsterApplicationList } from "@/components/capster/CapsterApplicationList";
 
-export default function CapsterApplicationsPage() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-[#1B1B1B]">
-        {copy.capsterApplications.title}
-      </h1>
-      <EmptyState
-        heading={copy.capsterApplications.emptyHeading}
-        actionLabel={copy.capsterApplications.findShiftBtn}
-        actionHref="/capster"
-      />
-    </div>
-  );
+export default async function CapsterApplicationsPage() {
+  const user = await getCurrentUser();
+  const capsterId = user?.capsterProfile?.id ?? "mock-capster-id";
+  const applications = await getCapsterApplications(capsterId);
+
+  return <CapsterApplicationList applications={applications} />;
 }
-

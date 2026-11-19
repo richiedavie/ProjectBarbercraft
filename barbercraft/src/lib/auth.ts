@@ -83,7 +83,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
       ? {
           id: "mock-capster-id",
           userId: userId,
-          experience: "3 - 5 tahun",
+          experienceYears: 3,
           skills: ["Skin Fade", "Classic Cut", "Beard Trim"],
           dailyRate: 250000,
           whatsapp: "6289876543210",

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createShiftSchema, type CreateShiftInput } from "@/lib/validations/shift";
+import { parseWibTimeToUtc } from "@/lib/format";
 
 export type ActionResult<T = unknown> = {
   success: boolean;
@@ -95,6 +96,8 @@ export async function createShiftAction(input: CreateShiftInput): Promise<Action
 
   try {
     const shiftDate = new Date(date);
+    const startAt = parseWibTimeToUtc(shiftDate, startTime);
+    const endAt = parseWibTimeToUtc(shiftDate, endTime);
 
     await prisma.shift.create({
       data: {
@@ -103,6 +106,8 @@ export async function createShiftAction(input: CreateShiftInput): Promise<Action
         date: shiftDate,
         startTime,
         endTime,
+        startAt,
+        endAt,
         payAmount,
         capsterCount,
         minExperienceYears: minExperienceYears ?? null,
