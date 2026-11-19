@@ -6,6 +6,54 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Whi
 
 ---
 
+## [0.0.4b] - 2026-11-19
+
+### Real authentication
+
+The fourth beta replaces the development sign-in with real authentication. Accounts now have a password, sessions are stored in the database, and nobody can sign in as someone else by typing an email. The release also puts the database schema under proper migrations, so every future change to the data model is recorded and repeatable.
+
+### Added
+
+- **Email and password authentication** built on Better Auth. Passwords are stored only as salted hashes, and sessions live in the database and travel in `httpOnly` cookies. Signing out ends the session on the server, so an old cookie stops working.
+- **Authentication tables** (`Session`, `Account`, and `Verification`) and an `emailVerified` field on users.
+- **Safer registration.** Owner and capster sign-up now create the account through the authentication system, then create the profile and set the role in a single step. A role can only be chosen once, from unassigned to owner or capster, and the admin role can never be requested by a user.
+- **Protection against guessing.** Sign-in and sign-up are rate limited, failed sign-ins show one generic message that does not reveal whether an email exists, and passwords must be between 8 and 128 characters.
+- **Migration history.** The existing database was baselined as `0_init`, and the authentication tables were added as a named migration.
+- **Developer tools:** a development-only script to set a password for an existing account, and the new `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` settings listed in `.env.example`.
+- **Dependency:** `better-auth`.
+
+### Changed
+
+- **The login page signs in with a real password.** `getCurrentUser()` remains the single entry point for the current user and now reads the authentication session, so pages and actions did not need to change.
+- **Seed data** uses `@example.com` addresses and properly hashed passwords, and refuses to run in production.
+- **The Google sign-in button is hidden** until Google sign-in is built.
+- **Database changes now go through named Prisma migrations only.**
+
+### Removed
+
+- The development sign-in that accepted a typed email with no password.
+
+### Known limitations
+
+- Email verification and "forgot password" are not available yet. Both need an email provider.
+- Google sign-in is not available yet.
+- Rate limiting keeps its counters in memory, which is fine for development but must move to the database before deploying on a server with more than one instance.
+- The old `User.password` column is no longer used and will be removed in a later migration.
+- Seed accounts share a development password and are meant for local use only.
+- The Terdekat filter does not calculate real distances yet, and photo and certificate uploads are not connected to any storage.
+- There is no payment provider, and withdrawals are only recorded. There is also no admin area to approve them.
+- Completing a shift, reviewing the other party, and notifications are not built yet.
+- Capster profiles, rates, and statistics on the home page are still placeholder content.
+
+### Up next
+
+- Full shift and booking lifecycle with scheduled jobs.
+- Shift completion and two-way reviews.
+- Wallet ledger, admin approval of withdrawals, and notifications (including email verification and password reset).
+- File uploads, map location, tests, and production deployment.
+
+---
+
 ## [0.0.3b] - 2026-11-19
 
 ### Applicants, the capster app, and polish
@@ -108,9 +156,9 @@ The second beta turns BarberCraft from a set of static pages into an application
 
 **Database**
 
-- **Prisma in the app** as the single source of truth for the data model, with PostgreSQL running in Docker.
-- **First migration:** shift requirements (skills, minimum experience, number of capsters) and notes, barbershop SOP and opening hours, transaction type and owner so withdrawals can exist without a booking, and capster certificates.
-- **Hardening migration:**
+- **Prisma in the app** as the single source of truth for the data model, with PostgreSQL.
+- **First schema changes:** shift requirements (skills, minimum experience, number of capsters) and notes, barbershop SOP and opening hours, transaction type and owner so withdrawals can exist without a booking, and capster certificates.
+- **Hardening schema changes:**
     - A capster can apply to a given shift only once
     - A reviewer can review a booking only once
     - Indexes on shift status and date, and on booking status
@@ -168,7 +216,7 @@ The first beta of BarberCraft sets up the project foundation and delivers the fi
 ### Known limitations
 
 - The login form is not connected to any authentication system.
-- Buttons and links such as placement requests, applying as a caapster, WhatsApp, sign-up, and password reset are placeholders.
+- Buttons and links such as placement requests, applying as a capster, WhatsApp, sign-up, and password reset are placeholders.
 - All capster profiles, rates, statistics, and guarantees shown are placeholder content and must be replaced or verified before a public launch.
 - There is no backend, database, or payment system yet.
 
@@ -177,6 +225,7 @@ The first beta of BarberCraft sets up the project foundation and delivers the fi
 - Sign-up page.
 - Connecting login, sign-up, and placement requests to a real backend.
 
+[0.0.4b]: https://github.com/richiedavie/barbercraft/releases/tag/v0.0.4b
 [0.0.3b]: https://github.com/richiedavie/barbercraft/releases/tag/v0.0.3b
 [0.0.2b]: https://github.com/richiedavie/barbercraft/releases/tag/v0.0.2b
 [0.0.1b]: https://github.com/richiedavie/barbercraft/releases/tag/v0.0.1b
