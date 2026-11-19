@@ -1,38 +1,18 @@
 import { getCurrentUser } from "@/lib/auth";
 import { CapsterProfileForm } from "@/components/forms/CapsterProfileForm";
-import { prisma } from "@/lib/prisma";
+import { getCapsterProfileSummary } from "@/lib/queries/capster";
 import { Star } from "lucide-react";
 
 export default async function CapsterProfilePage() {
   const user = await getCurrentUser();
 
-  // Hitung rating rata-rata & shift selesai dari Review dan Booking
   let rating = 5.0;
   let completedShiftsCount = 0;
 
   if (user?.capsterProfile?.id) {
-    try {
-      completedShiftsCount = await prisma.booking.count({
-        where: {
-          capsterId: user.capsterProfile.id,
-          status: "COMPLETED",
-        },
-      });
-
-      const reviews = await prisma.review.findMany({
-        where: {
-          booking: { capsterId: user.capsterProfile.id },
-        },
-        select: { rating: true },
-      });
-
-      if (reviews.length > 0) {
-        const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
-        rating = Number((sum / reviews.length).toFixed(1));
-      }
-    } catch {
-      // fallback
-    }
+    const summary = await getCapsterProfileSummary(user.capsterProfile.id);
+    rating = summary.rating;
+    completedShiftsCount = summary.completedShiftsCount;
   }
 
   const initialData = user?.capsterProfile ?? {

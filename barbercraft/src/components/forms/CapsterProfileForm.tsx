@@ -63,10 +63,9 @@ export function CapsterProfileForm({
 
     setIsPending(false);
 
-    if (res.success) {
+    if (res.ok) {
       setSuccessMsg("Profil capster berhasil diperbarui.");
     } else {
-      if (res.fieldErrors) setFieldErrors(res.fieldErrors);
       if (res.error) setErrorMsg(res.error);
     }
   };

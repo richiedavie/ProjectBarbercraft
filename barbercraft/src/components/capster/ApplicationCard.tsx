@@ -23,7 +23,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
     setError(null);
     startTransition(async () => {
       const res = await cancelApplicationAction(application.id);
-      if (!res.success) {
+      if (!res.ok) {
         setError(res.error || "Gagal membatalkan lamaran.");
       }
     });

@@ -60,7 +60,7 @@ export function WithdrawModal({ isOpen, onClose, maxAmount }: WithdrawModalProps
         accountNumber,
       });
 
-      if (res.success) {
+      if (res.ok) {
         onClose();
       } else {
         setError(res.error || "Gagal memproses penarikan.");

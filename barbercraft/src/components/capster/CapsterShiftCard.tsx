@@ -20,7 +20,7 @@ export function CapsterShiftCard({ shift }: CapsterShiftCardProps) {
     setError(null);
     startTransition(async () => {
       const res = await applyShiftAction(shift.id);
-      if (!res.success) {
+      if (!res.ok) {
         setError(res.error || "Gagal mengajukan lamaran.");
       }
     });

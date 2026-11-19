@@ -64,10 +64,9 @@ export function BarberProfileForm({ initialData, userEmail }: BarberProfileFormP
 
     setIsPending(false);
 
-    if (res.success) {
+    if (res.ok) {
       setSuccessMsg("Profil barbershop berhasil disimpan.");
     } else {
-      if (res.fieldErrors) setFieldErrors(res.fieldErrors);
       if (res.error) setErrorMsg(res.error);
     }
   };

@@ -52,7 +52,7 @@ export default function RegisterOwnerPage() {
       chairCount: seatCount || 2,
     });
 
-    if (res.success) {
+    if (res.ok) {
       router.push("/owner");
       router.refresh();
     } else {

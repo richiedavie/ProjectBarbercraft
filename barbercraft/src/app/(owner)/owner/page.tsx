@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { getOwnerMetrics, getOwnerUpcomingShifts } from "@/lib/queries/owner";
+import { getOwnerMetrics, getOwnerUpcomingShifts, getFirstBarberProfile } from "@/lib/queries/owner";
 import { StatCard } from "@/components/shared/StatCard";
 import { ShiftCard } from "@/components/shared/ShiftCard";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -15,7 +14,7 @@ export default async function OwnerSummaryPage() {
 
   if (!shopId || shopId === "mock-barber-id") {
     try {
-      const firstShop = await prisma.barberProfile.findFirst();
+      const firstShop = await getFirstBarberProfile();
       if (firstShop) shopId = firstShop.id;
     } catch {
       // ignore

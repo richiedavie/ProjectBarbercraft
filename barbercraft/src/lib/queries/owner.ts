@@ -290,4 +290,13 @@ export async function getOwnerApplicants(shopId: string): Promise<ApplicantItem[
   }
 }
 
+export async function getFirstBarberProfile() {
+  try {
+    return await prisma.barberProfile.findFirst();
+  } catch {
+    return null;
+  }
+}
+
+
 

@@ -70,13 +70,10 @@ export function CreateShiftForm() {
 
     setIsPending(false);
 
-    if (result.success) {
+    if (result.ok) {
       router.push("/owner/shift");
       router.refresh();
     } else {
-      if (result.fieldErrors) {
-        setFieldErrors(result.fieldErrors);
-      }
       if (result.error) {
         setGeneralError(result.error);
       }

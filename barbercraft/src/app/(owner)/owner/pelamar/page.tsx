@@ -1,7 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
-import { getOwnerApplicants, getOwnerApplicantCounts } from "@/lib/queries/owner";
+import { getOwnerApplicants, getOwnerApplicantCounts, getFirstBarberProfile } from "@/lib/queries/owner";
 import { OwnerApplicantList } from "@/components/owner/OwnerApplicantList";
-import { prisma } from "@/lib/prisma";
 
 export default async function OwnerApplicantsPage() {
   const user = await getCurrentUser();
@@ -9,7 +8,7 @@ export default async function OwnerApplicantsPage() {
 
   if (!shopId || shopId === "mock-barber-id") {
     try {
-      const firstShop = await prisma.barberProfile.findFirst();
+      const firstShop = await getFirstBarberProfile();
       if (firstShop) shopId = firstShop.id;
     } catch {
       // ignore

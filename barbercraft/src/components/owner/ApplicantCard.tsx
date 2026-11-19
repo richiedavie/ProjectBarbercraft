@@ -26,7 +26,7 @@ export function ApplicantCard({ applicant }: ApplicantCardProps) {
     setError(null);
     startTransition(async () => {
       const res = await acceptApplicantAction(applicant.id);
-      if (!res.success) {
+      if (!res.ok) {
         setError(res.error || "Gagal menerima pelamar.");
       }
     });
@@ -36,7 +36,7 @@ export function ApplicantCard({ applicant }: ApplicantCardProps) {
     setError(null);
     startTransition(async () => {
       const res = await rejectApplicantAction(applicant.id);
-      if (!res.success) {
+      if (!res.ok) {
         setError(res.error || "Gagal menolak pelamar.");
       }
     });

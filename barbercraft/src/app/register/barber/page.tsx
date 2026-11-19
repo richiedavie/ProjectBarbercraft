@@ -71,7 +71,7 @@ export default function RegisterBarberPage() {
       expectedRate: rateNum,
     });
 
-    if (res.success) {
+    if (res.ok) {
       router.push("/capster");
       router.refresh();
     } else {

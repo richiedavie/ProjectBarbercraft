@@ -197,4 +197,33 @@ export async function getCapsterWalletData(userId: string): Promise<{
   }
 }
 
+export async function getCapsterProfileSummary(capsterProfileId: string) {
+  try {
+    const completedShiftsCount = await prisma.booking.count({
+      where: {
+        capsterId: capsterProfileId,
+        status: "COMPLETED",
+      },
+    });
+
+    const reviews = await prisma.review.findMany({
+      where: {
+        booking: { capsterId: capsterProfileId },
+      },
+      select: { rating: true },
+    });
+
+    let rating = 5.0;
+    if (reviews.length > 0) {
+      const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+      rating = Number((sum / reviews.length).toFixed(1));
+    }
+
+    return { completedShiftsCount, rating };
+  } catch {
+    return { completedShiftsCount: 0, rating: 5.0 };
+  }
+}
+
+
 
